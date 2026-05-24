@@ -1,8 +1,8 @@
 type LogoVariant = "light" | "dark";
 
 const logoSrc: Record<LogoVariant, string> = {
-  light: "/bloomportBlack.png",
-  dark: "/bloomportWhite.png",
+  light: "/iconBk.png",
+  dark: "/iconWh.png",
 };
 
 export function Logo({
