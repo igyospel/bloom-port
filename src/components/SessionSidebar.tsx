@@ -84,7 +84,7 @@ export default function SessionSidebar({ inDrawer }: { inDrawer?: boolean }) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Logo className="w-5 h-5" variant="dark" />
+            <Logo className="h-5 w-auto" variant="dark" />
             <span className="text-[9px] font-semibold text-white/50 bg-white/[0.06] border border-white/10 px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95 origin-left">
               LLM Studio
             </span>

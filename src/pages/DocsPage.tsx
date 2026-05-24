@@ -317,7 +317,7 @@ function SidebarNav({
         <div className="px-4 pb-4 border-b border-white/10 md:hidden">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2" onClick={() => { onSectionChange('getting-started'); onClose(); }}>
-              <Logo className="w-6 h-6" variant="dark" />
+              <Logo className="h-6 w-auto" variant="dark" />
               <span className="text-lg font-bold tracking-tight">Docs</span>
             </div>
             <button onClick={onClose} className="text-white/50 hover:text-white cursor-pointer p-1">
@@ -392,7 +392,7 @@ export default function DocsPage({
           >
             <Menu className="w-5 h-5" />
           </button>
-          <Logo className="w-5 h-5" variant="dark" />
+          <Logo className="h-5 w-auto" variant="dark" />
           <span className="text-[9px] font-semibold text-white/50 bg-white/[0.06] border border-white/10 px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95 origin-left">
             Docs
           </span>

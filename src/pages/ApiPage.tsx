@@ -195,7 +195,7 @@ export default function ApiPage({
           >
             <Menu className="w-5 h-5" />
           </button>
-          <Logo className="w-5 h-5" variant="dark" />
+          <Logo className="h-5 w-auto" variant="dark" />
         </div>
         
         <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans text-white/50">
@@ -660,7 +660,7 @@ export default function ApiPage({
             <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
               <div>
                 <div className="flex items-center space-x-2 mb-4">
-                  <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="dark" />
+                  <Logo className="h-6 sm:h-8 w-auto" variant="dark" />
                 </div>
                 <p className="text-white/50 text-sm max-w-xs leading-relaxed">
                   Intelligent Stillness for the modern mind. Harnessing AI to help you find focus in the noise.

@@ -50,7 +50,7 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <Logo className="w-5 h-5" variant="dark" />
+              <Logo className="h-5 w-auto" variant="dark" />
             </div>
             
             <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans">
@@ -183,7 +183,7 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-12 mb-12 sm:mb-20">
                <div className="md:col-span-4">
                   <div className="flex items-center space-x-2 mb-6 sm:mb-8">
-                     <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="dark" />
+                     <Logo className="h-6 sm:h-8 w-auto" variant="dark" />
                   </div>
                   <p className="text-white/80 max-w-xs leading-relaxed text-[14px] sm:text-[16px] font-medium mb-8 sm:mb-10">
                      Intelligent Stillness for the modern mind. Harnessing AI to help you find focus in the noise.

@@ -37,7 +37,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <Logo className="w-5 h-5" variant="dark" />
+          <Logo className="h-5 w-auto" variant="dark" />
         </div>
         
         <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans text-white/50">

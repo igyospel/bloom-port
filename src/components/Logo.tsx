@@ -6,7 +6,7 @@ const logoSrc: Record<LogoVariant, string> = {
 };
 
 export function Logo({
-  className = "w-8 h-8",
+  className = "h-8 w-auto",
   variant = "light",
 }: {
   className?: string;
@@ -16,7 +16,7 @@ export function Logo({
     <img
       src={logoSrc[variant]}
       alt="Bloomport"
-      className={className}
+      className={`object-contain ${className}`}
     />
   );
 }
