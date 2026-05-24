@@ -24,7 +24,11 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
+  Play,
 } from 'lucide-react';
+import SEO from '../components/SEO';
+import CreditIndicator from '../components/CreditIndicator';
+import AdBanner from '../components/AdBanner';
 
 interface ApiKey {
   id: string;
@@ -177,26 +181,32 @@ export default function ApiPage({
 
   return (
     <div className="bg-[#0a0a0a] text-white font-body-md min-h-screen flex flex-col overflow-x-hidden">
+      <SEO 
+        title="Bloomport API - Calm AI Developer Keys & Integration" 
+        description="Access calm intelligence for your applications. Generate, view, and delete API keys, purchase credits, and view quickstart guides." 
+      />
       {/* Header */}
-      <header className="w-full z-50 flex items-center justify-between px-4 py-4 sm:px-8 sm:py-6 bg-[#0a0a0a] border-b border-white/10 text-white shadow-sm shrink-0">
-        <div className="flex items-center space-x-2 cursor-pointer" onClick={onNavigateHome}>
-          <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="dark" />
-          <span className="text-xl sm:text-2xl font-bold tracking-tight">Bloomport</span>
-        </div>
-        <nav className="hidden md:flex items-center space-x-6 lg:space-x-10 text-[14px] lg:text-[15px] font-medium font-sans text-white/80">
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateHome(); }}>Home</a>
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApp(); }}>Models</a>
-          <a className="text-white transition-colors" href="#">API</a>
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
-        </nav>
-        <div className="flex items-center gap-2 sm:gap-3">
+      <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 bg-black border-b border-white/10 text-white shadow-sm shrink-0">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigateHome}>
           <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden p-2 text-white/50 hover:text-white cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(true); }}
+            className="md:hidden p-2 -ml-1 text-white/50 hover:text-white cursor-pointer"
             aria-label="Open navigation menu"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5" />
           </button>
+          <Logo className="w-5 h-5" variant="dark" />
+        </div>
+        
+        <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans text-white/50">
+          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateHome(); }}>Home</a>
+          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApp(); }}>Models</a>
+          <a className="text-white transition-colors border-b border-white pb-0.5" href="#" onClick={(e) => { e.preventDefault(); }}>API</a>
+          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
+        </nav>
+
+        <div className="flex items-center gap-4">
+          <CreditIndicator variant="dark" />
           <WalletDropdown variant="app" />
         </div>
       </header>
@@ -248,7 +258,7 @@ export default function ApiPage({
         <section className="relative pt-16 pb-20 sm:pt-24 sm:pb-28 px-4 sm:px-8 border-b border-white/10">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(123,142,92,0.08),transparent_70%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03),transparent_70%)]"
           />
           <div className="max-w-5xl mx-auto text-center relative">
             <Badge className="mb-6 bg-white/10 text-white/80 hover:bg-white/15 border-white/10 backdrop-blur-sm">
@@ -343,7 +353,7 @@ export default function ApiPage({
                       <span className="text-white/40 text-sm">{tier.period}</span>
                     </div>
                     <div className="flex items-center gap-2 py-3 px-4 rounded-xl bg-white/[0.04] border border-white/10">
-                      <Zap className="w-4 h-4 text-[#7b8e5c]" />
+                      <Zap className="w-4 h-4 text-white" />
                       <span className="text-sm font-medium text-white/80">
                         {tier.credits} credits / month
                       </span>
@@ -351,7 +361,7 @@ export default function ApiPage({
                     <ul className="space-y-3">
                       {tier.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-3 text-sm text-white/70">
-                          <Check className="w-4 h-4 text-[#7b8e5c] shrink-0 mt-0.5" />
+                          <Check className="w-4 h-4 text-white/80 shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -377,7 +387,7 @@ export default function ApiPage({
               <Card className="bg-white/[0.03] border-white/10 rounded-2xl">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-[#7b8e5c]" />
+                    <Zap className="w-5 h-5 text-white" />
                     Buy Additional Credits
                   </CardTitle>
                   <CardDescription className="text-white/50 text-sm">
@@ -401,6 +411,37 @@ export default function ApiPage({
                         <span className="text-xs text-white/40 mt-1">{topup.price}</span>
                       </button>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            {/* Free Ad Credit */}
+            <div className="mt-8 max-w-2xl mx-auto">
+              <Card className="bg-white/[0.03] border-white/10 rounded-2xl overflow-hidden relative">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.04),transparent_60%)] pointer-events-none" />
+                <CardHeader className="pb-3 relative">
+                  <CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2">
+                    <Play className="w-5 h-5 text-white" />
+                    Free Credits — Watch an Ad
+                  </CardTitle>
+                  <CardDescription className="text-white/50 text-sm">
+                    No payment needed. Watch a 30-second sponsored ad and earn +1,000 credits instantly.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/10">
+                          <Zap className="w-3.5 h-3.5 text-white" />
+                          <span className="text-sm font-semibold text-white">+1,000</span>
+                          <span className="text-xs text-white/40">credits</span>
+                        </div>
+                        <span className="text-xs text-white/40">per 30-second ad viewed</span>
+                      </div>
+                      <p className="text-xs text-white/30 leading-relaxed">Credits are added to your balance immediately after the ad completes. No limit on daily views.</p>
+                    </div>
+                    <CreditIndicator variant="dark" />
                   </div>
                 </CardContent>
               </Card>
@@ -479,7 +520,7 @@ export default function ApiPage({
                                 title="Copy key"
                               >
                                 {copiedKey === apiKey.id ? (
-                                  <Check className="w-4 h-4 text-[#7b8e5c]" />
+                                  <Check className="w-4 h-4 text-white" />
                                 ) : (
                                   <Copy className="w-4 h-4" />
                                 )}
@@ -545,7 +586,7 @@ export default function ApiPage({
               </div>
 
               <div className="relative">
-                <div className="absolute -inset-4 bg-[#7b8e5c]/5 rounded-3xl blur-2xl" />
+                <div className="absolute -inset-4 bg-white/5 rounded-3xl blur-2xl" />
                 <div className="relative bg-[#111111] border border-white/10 rounded-2xl overflow-hidden">
                   <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/[0.02]">
                     <div className="flex items-center gap-2">
@@ -558,8 +599,8 @@ export default function ApiPage({
                     >
                       {copiedKey === 'code-example' ? (
                         <>
-                          <Check className="w-3 h-3 text-[#7b8e5c]" />
-                          <span className="text-[#7b8e5c]">Copied</span>
+                          <Check className="w-3 h-3 text-white" />
+                          <span className="text-white">Copied</span>
                         </>
                       ) : (
                         <>
@@ -578,11 +619,18 @@ export default function ApiPage({
           </div>
         </section>
 
+        {/* Ad Placements */}
+        <section className="py-8 px-4 sm:px-8 border-t border-white/10">
+          <div className="max-w-5xl mx-auto">
+            <AdBanner layout="horizontal" />
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="py-20 sm:py-28 px-4 sm:px-8 border-t border-white/10 relative overflow-hidden">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(123,142,92,0.06),transparent_70%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.02),transparent_70%)]"
           />
           <div className="max-w-3xl mx-auto text-center relative">
             <h2 className="text-3xl sm:text-5xl font-serif font-medium tracking-tight mb-5">
@@ -613,7 +661,6 @@ export default function ApiPage({
               <div>
                 <div className="flex items-center space-x-2 mb-4">
                   <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="dark" />
-                  <span className="text-xl sm:text-2xl font-bold tracking-tight">Bloomport</span>
                 </div>
                 <p className="text-white/50 text-sm max-w-xs leading-relaxed">
                   Intelligent Stillness for the modern mind. Harnessing AI to help you find focus in the noise.
@@ -652,7 +699,7 @@ export default function ApiPage({
         <DialogContent className="bg-[#111111] border-white/10 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold tracking-tight flex items-center gap-2">
-              <Key className="w-5 h-5 text-[#7b8e5c]" />
+              <Key className="w-5 h-5 text-white" />
               API Key Generated
             </DialogTitle>
             <DialogDescription className="text-white/50 text-sm">

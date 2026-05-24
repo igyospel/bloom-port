@@ -3,6 +3,8 @@ import { Logo } from '../components/Logo';
 import { WalletDropdown } from '../components/ui/wallet-dropdown';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
+import AdBanner from '../components/AdBanner';
+import CreditIndicator from '../components/CreditIndicator';
 import {
   Terminal,
   Zap,
@@ -381,29 +383,30 @@ export default function DocsPage({
   return (
     <div className="bg-[#0a0a0a] text-white font-body-md min-h-screen flex flex-col">
       {/* Header */}
-      <header className="w-full z-30 flex items-center justify-between px-4 py-4 sm:px-8 sm:py-6 bg-[#0a0a0a] border-b border-white/10 text-white shadow-sm shrink-0">
-        <div className="flex items-center space-x-3">
+      <header className="w-full z-30 flex items-center justify-between px-6 py-3.5 bg-black border-b border-white/10 text-white shadow-sm shrink-0">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigateHome}>
           <button
             onClick={() => setSidebarOpen(true)}
             className="md:hidden text-white/50 hover:text-white cursor-pointer p-1 -ml-1"
+            aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={onNavigateHome}>
-            <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="dark" />
-            <span className="text-xl sm:text-2xl font-bold tracking-tight">Bloomport</span>
-            <Badge className="ml-2 bg-white/10 text-white/70 border-white/10 text-[10px] px-2 py-0.5 font-mono">
-              Docs
-            </Badge>
-          </div>
+          <Logo className="w-5 h-5" variant="dark" />
+          <span className="text-[9px] font-semibold text-white/50 bg-white/[0.06] border border-white/10 px-1.5 py-0.5 rounded-full uppercase tracking-wider scale-95 origin-left">
+            Docs
+          </span>
         </div>
-        <nav className="hidden md:flex items-center space-x-6 lg:space-x-10 text-[14px] lg:text-[15px] font-medium font-sans text-white/80">
+        
+        <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans text-white/50">
           <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateHome(); }}>Home</a>
           <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApp(); }}>Models</a>
           <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApi(); }}>API</a>
-          <a className="text-white transition-colors" href="#">Docs</a>
+          <a className="text-white transition-colors border-b border-white pb-0.5" href="#" onClick={(e) => { e.preventDefault(); }}>Docs</a>
         </nav>
-        <div className="flex items-center space-x-3 sm:space-x-6 text-[14px] lg:text-[15px] font-medium font-sans">
+
+        <div className="flex items-center gap-4">
+          <CreditIndicator variant="dark" />
           <WalletDropdown variant="app" />
         </div>
       </header>
@@ -1028,6 +1031,11 @@ curl -X POST https://api.bloomport.ai/v1/chat/completions \\\
                   </div>
                 </div>
               </section>
+
+              {/* Ad Placements */}
+              <div className="mt-16 w-full max-w-4xl mx-auto">
+                <AdBanner layout="horizontal" />
+              </div>
 
               {/* Footer */}
               <footer className="mt-16 pt-8 border-t border-white/10">

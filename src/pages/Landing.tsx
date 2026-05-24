@@ -8,6 +8,10 @@ import { Features } from '../components/ui/features-11';
 import { cn } from '../lib/utils';
 import { WalletDropdown } from '../components/ui/wallet-dropdown';
 import Testimonial from '../components/ui/testimonial';
+import SEO from '../components/SEO';
+import CreditIndicator from '../components/CreditIndicator';
+import AdBanner from '../components/AdBanner';
+import { Changelog1 } from '../components/ui/changelog-1';
 
 const logos = [
   { src: "https://svgl.app/library/nvidia-wordmark-light.svg", alt: "Nvidia Logo" },
@@ -26,33 +30,39 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="font-sans text-brand-dark bg-[#FAE3B9]">
+    <div className="font-sans text-white bg-black">
+      <SEO 
+        title="Bloomport - Intelligent Stillness for the Modern Mind" 
+        description="Experience the next generation of calm. Declutter your mind, automate your peace, and rediscover focus through conversational mindfulness powered by calm AI." 
+      />
       <section className="hero-container relative min-h-[100svh] flex flex-col overflow-hidden">
           <div className="hero-bg-wrapper absolute inset-0 z-0">
-             <video autoPlay loop muted playsInline className="hero-bg-video w-full h-full object-cover object-[center_calc(100%_+_15px)]" src="/backgrundVid.mp4" />
+             <img className="hero-bg-video w-full h-full object-cover" src="/newheroimg.png" alt="Hero background" />
              <div className="absolute inset-x-0 bottom-0 h-64 md:h-96 bg-gradient-to-b from-transparent to-black opacity-100"></div>
           </div>
           
-          <header className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 py-4 sm:px-8 sm:py-6">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={onNavigate}>
-               <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="light" />
-               <span className="text-xl sm:text-2xl font-bold tracking-tight">Bloomport</span>
+          <header className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/10 text-white shadow-sm shrink-0 bg-black/40 backdrop-blur-sm">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <button
+                onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(true); }}
+                className="md:hidden p-2 -ml-1 text-white/50 hover:text-white cursor-pointer"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <Logo className="w-5 h-5" variant="dark" />
             </div>
-            <nav className="hidden md:flex items-center space-x-6 lg:space-x-10 text-[14px] lg:text-[15px] font-medium">
-               <a className="hover:opacity-60 transition-opacity" href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Home</a>
-               <a className="hover:opacity-60 transition-opacity" href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Models</a>
-               <a className="hover:opacity-60 transition-opacity" href="#" onClick={(e) => { e.preventDefault(); onNavigateApi(); }}>API</a>
-               <a className="hover:opacity-60 transition-opacity" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
+            
+            <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans">
+              <a className="text-white border-b border-white pb-0.5" href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Home</a>
+              <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Models</a>
+              <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApi(); }}>API</a>
+              <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
             </nav>
-            <div className="flex items-center gap-2 sm:gap-3">
-               <button
-                 onClick={() => setMobileMenuOpen(true)}
-                 className="md:hidden p-2 text-white hover:text-white/70 transition-colors cursor-pointer"
-                 aria-label="Open navigation menu"
-               >
-                 <Menu className="w-6 h-6" />
-               </button>
-               <WalletDropdown variant="landing" />
+
+            <div className="flex items-center gap-4">
+              <CreditIndicator variant="dark" />
+              <WalletDropdown variant="app" />
             </div>
           </header>
 
@@ -107,7 +117,7 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
           </div>
 
           <div className="hero-content px-4 sm:px-8 pt-24 sm:pt-32 pb-12 rounded-3xl max-w-xl lg:max-w-2xl mx-auto flex-grow flex flex-col text-center items-center relative z-20">
-             <h1 className="hero-headline text-3xl sm:text-5xl md:text-7xl lg:text-8xl max-w-5xl mb-6 sm:mb-8 font-serif text-black">
+             <h1 className="hero-headline text-3xl sm:text-5xl md:text-7xl lg:text-8xl max-w-5xl mb-6 sm:mb-8 font-serif text-white">
                 <span className="whitespace-nowrap">intelligence helped</span><br />
                 <em>your daily.</em>
              </h1>
@@ -154,8 +164,19 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
       </section>
 
       <Features />
+      <div className="w-full bg-[#0a0a0a] py-4">
+         <div className="max-w-6xl mx-auto px-4 md:px-8">
+            <AdBanner layout="horizontal" />
+         </div>
+      </div>
+      <Changelog1 />
       <Testimonial />
       <TextRevealFAQs />
+      <div className="w-full bg-[#0a0a0a] py-4">
+         <div className="max-w-6xl mx-auto px-4 md:px-8">
+            <AdBanner layout="horizontal" />
+         </div>
+      </div>
 
       <footer className="bg-black text-white pt-16 sm:pt-24 pb-8 sm:pb-12 border-t border-white/10 subtle-grid">
          <div className="max-w-7xl mx-auto px-4 sm:px-8">
@@ -163,7 +184,6 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                <div className="md:col-span-4">
                   <div className="flex items-center space-x-2 mb-6 sm:mb-8">
                      <Logo className="w-6 h-6 sm:w-8 sm:h-8" variant="dark" />
-                     <span className="text-xl sm:text-2xl font-bold tracking-tight">Bloomport</span>
                   </div>
                   <p className="text-white/80 max-w-xs leading-relaxed text-[14px] sm:text-[16px] font-medium mb-8 sm:mb-10">
                      Intelligent Stillness for the modern mind. Harnessing AI to help you find focus in the noise.
