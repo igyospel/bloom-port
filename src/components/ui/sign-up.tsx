@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Logo } from '../Logo';
 
 // ── Google Icon ──────────────────────────────────────────────────────────────
@@ -24,6 +24,7 @@ interface SignUpPageProps {
   onSignUp?: (event: React.FormEvent<HTMLFormElement>) => void;
   onGoogleSignUp?: () => void;
   onSignIn?: () => void;
+  onBack?: () => void;
 }
 
 // ── Abstract Computational Avatar (Monochrome/Minimal) ─────────────────────
@@ -399,6 +400,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   onSignUp,
   onGoogleSignUp,
   onSignIn,
+  onBack,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
@@ -418,6 +420,18 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
       <section className="flex-1 flex items-center justify-center px-8 py-16 md:px-20 relative z-10 bg-black">
         <div className="w-full max-w-[390px] flex flex-col justify-between h-full max-h-[660px]">
           
+          {/* Back button */}
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-1.5 text-white/35 hover:text-white/80 transition-colors duration-200 cursor-pointer group w-fit animate-element animate-delay-100"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-200" />
+              <span className="text-[12px] font-medium tracking-wide">Back</span>
+            </button>
+          )}
+
           {/* Logo */}
           <div className="animate-element animate-delay-100">
             <Logo className="h-9 w-auto object-contain" variant="dark" />

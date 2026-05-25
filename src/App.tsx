@@ -121,6 +121,7 @@ function MainAppContent() {
           onCreateAccount={() => {
             setCurrentView('signup');
           }}
+          onBack={() => setCurrentView('landing')}
         />
       )}
       {currentView === 'signup' && (
@@ -131,6 +132,7 @@ function MainAppContent() {
           onSignIn={() => {
             setCurrentView('signin');
           }}
+          onBack={() => setCurrentView('landing')}
         />
       )}
     </>
