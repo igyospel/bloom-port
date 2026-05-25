@@ -32,6 +32,8 @@ import {
   Users,
   Database,
   Lock,
+  Search,
+  Activity,
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import CreditIndicator from '../components/CreditIndicator';
@@ -54,6 +56,8 @@ interface ApiKey {
   key: string;
   createdAt: string;
   lastUsed: string;
+  type: 'live' | 'test';
+  scopes: string[];
 }
 
 const pricingTiers = [
@@ -166,19 +170,47 @@ export default function ApiPage({
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([
     {
       id: 'key-1',
-      name: 'Production Key',
+      name: 'Production Server Key',
       key: 'bp_live_aBcDeFgHiJkLmNoPqRsTuVwXyZ123456',
       createdAt: 'May 15, 2026',
       lastUsed: '2 hours ago',
+      type: 'live',
+      scopes: ['chat:write', 'journal:write', 'focus:read'],
+    },
+    {
+      id: 'key-2',
+      name: 'Local Test Key',
+      key: 'bp_test_xYz123456aBcDeFgHiJkLmNoPqRsTuV',
+      createdAt: 'May 20, 2026',
+      lastUsed: '1 day ago',
+      type: 'test',
+      scopes: ['chat:write', 'focus:read'],
     },
   ]);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newKeyType, setNewKeyType] = useState<'live' | 'test'>('live');
+  const [newKeyScopes, setNewKeyScopes] = useState<string[]>(['chat:write']);
+  
   const [showNewKeyDialog, setShowNewKeyDialog] = useState(false);
   const [newKeyValue, setNewKeyValue] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
 
-  const generateKey = useCallback(() => {
-    const randomKey = 'bp_live_' + Array.from({ length: 32 }, () =>
+  const [keySearch, setKeySearch] = useState('');
+  const [envFilter, setEnvFilter] = useState<'all' | 'live' | 'test'>('all');
+
+  const getKeyActivity = useCallback((id: string) => {
+    const charSum = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return Array.from({ length: 9 }, (_, i) => {
+      const val = ((charSum * (i + 1)) % 45) + 10;
+      return val;
+    });
+  }, []);
+
+  const handleCreateKey = useCallback(() => {
+    const prefix = newKeyType === 'live' ? 'bp_live_' : 'bp_test_';
+    const randomKey = prefix + Array.from({ length: 32 }, () =>
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
         .charAt(Math.floor(Math.random() * 62))
     ).join('');
@@ -186,16 +218,23 @@ export default function ApiPage({
     setApiKeys((prev) => {
       const newApiKey: ApiKey = {
         id: `key-${Date.now()}`,
-        name: `Key ${prev.length + 1}`,
+        name: newKeyName.trim() || `Key ${prev.length + 1}`,
         key: randomKey,
         createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         lastUsed: 'Never',
+        type: newKeyType,
+        scopes: newKeyScopes,
       };
       return [...prev, newApiKey];
     });
+
     setNewKeyValue(randomKey);
+    setShowCreateDialog(false);
     setShowNewKeyDialog(true);
-  }, []);
+    setNewKeyName('');
+    setNewKeyType('live');
+    setNewKeyScopes(['chat:write']);
+  }, [newKeyName, newKeyType, newKeyScopes]);
 
   const copyToClipboard = useCallback(async (text: string, id: string) => {
     try {
@@ -765,7 +804,7 @@ export default function ApiPage({
                 className="flex shrink-0"
               >
                 <button
-                  onClick={generateKey}
+                  onClick={() => setShowCreateDialog(true)}
                   className="relative px-7 py-4 rounded-full bg-white text-black font-extrabold text-[12px] uppercase tracking-widest transition-all duration-300 hover:bg-neutral-100 hover:translate-y-[-2px] active:translate-y-0 active:scale-[0.98] cursor-pointer flex items-center gap-2.5 shadow-[0_0_35px_rgba(255,255,255,0.18)] hover:shadow-[0_0_45px_rgba(255,255,255,0.3)] z-10"
                 >
                   <Key className="w-4 h-4 fill-black text-black" />
@@ -786,132 +825,220 @@ export default function ApiPage({
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-white/50 blur-[1px] pointer-events-none" />
               <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-36 h-8 bg-white/[0.03] blur-md rounded-full pointer-events-none" />
 
+              {/* Filter and Search Toolbar */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input
+                    type="text"
+                    placeholder="Search keys by name..."
+                    value={keySearch}
+                    onChange={(e) => setKeySearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-white text-xs font-sans focus:outline-none focus:border-white/20 transition-all placeholder:text-white/25"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/[0.02] border border-white/10 self-start md:self-auto">
+                  <button
+                    onClick={() => setEnvFilter('all')}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer",
+                      envFilter === 'all' ? "bg-white text-black shadow-sm" : "text-white/40 hover:text-white/80"
+                    )}
+                  >
+                    All Keys
+                  </button>
+                  <button
+                    onClick={() => setEnvFilter('live')}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer",
+                      envFilter === 'live' ? "bg-white text-black shadow-sm" : "text-white/40 hover:text-white/80"
+                    )}
+                  >
+                    Live
+                  </button>
+                  <button
+                    onClick={() => setEnvFilter('test')}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer",
+                      envFilter === 'test' ? "bg-white text-black shadow-sm" : "text-white/40 hover:text-white/80"
+                    )}
+                  >
+                    Test
+                  </button>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-white/[0.06] bg-white/[0.01]">
-                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase">Name</th>
-                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase">Key</th>
-                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase hidden sm:table-cell">Created</th>
-                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase hidden md:table-cell">Last Used</th>
+                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase">Name & Environment</th>
+                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase">Access Token</th>
+                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase hidden lg:table-cell">Request Activity (7d)</th>
+                      <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase hidden sm:table-cell">Last Used</th>
                       <th className="py-4.5 px-6 text-[10px] font-mono tracking-wider font-bold text-white/40 uppercase text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {apiKeys.map((apiKey) => {
-                      const isVisible = visibleKeys.has(apiKey.id);
-                      const displayKey = isVisible ? apiKey.key : maskKey(apiKey.key);
-                      return (
-                        <tr key={apiKey.id} className="border-b border-white/[0.04] hover:bg-white/[0.015] transition-colors">
-                          {/* Name / Badge */}
-                          <td className="py-6 px-6 align-middle">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-center shrink-0 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
-                                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
-                                <Key className="w-4 h-4 text-white/50" />
-                                <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-white/40 blur-[0.5px] pointer-events-none animate-pulse" />
-                              </div>
-                              <div className="flex flex-col items-start gap-1.5">
-                                <span className="text-sm font-semibold text-white/90">{apiKey.name}</span>
-                                <div className="inline-flex items-center gap-1.5 py-0.5 px-2 rounded-full border border-white/[0.08] bg-white/[0.04] text-[9px] font-mono tracking-wide text-white/60 select-none">
-                                  <span className="w-1 h-1 rounded-full bg-white/70 animate-pulse" />
-                                  <span>Live</span>
+                    {apiKeys
+                      .filter((k) => {
+                        const mSearch = k.name.toLowerCase().includes(keySearch.toLowerCase());
+                        const mEnv = envFilter === 'all' || k.type === envFilter;
+                        return mSearch && mEnv;
+                      })
+                      .map((apiKey) => {
+                        const isVisible = visibleKeys.has(apiKey.id);
+                        const displayKey = isVisible ? apiKey.key : maskKey(apiKey.key);
+                        return (
+                          <tr key={apiKey.id} className="border-b border-white/[0.04] hover:bg-white/[0.015] transition-colors group">
+                            {/* Name / Environment / Scopes */}
+                            <td className="py-6 px-6 align-middle">
+                              <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-center shrink-0 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.5)] mt-0.5">
+                                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+                                  <Key className="w-4 h-4 text-white/50 animate-pulse" />
+                                </div>
+                                <div className="flex flex-col items-start gap-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold text-white/90">{apiKey.name}</span>
+                                    <span className={cn(
+                                      "inline-flex items-center py-0.5 px-2 rounded-full border text-[8px] font-mono tracking-widest uppercase select-none font-bold",
+                                      apiKey.type === 'live'
+                                        ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-400"
+                                        : "border-amber-500/20 bg-amber-500/5 text-amber-400"
+                                    )}>
+                                      {apiKey.type}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1">
+                                    {apiKey.scopes.map((scope) => (
+                                      <span key={scope} className="px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.05] text-[9px] font-mono text-white/45">
+                                        {scope}
+                                      </span>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </td>
+                            </td>
 
-                          {/* Key */}
-                          <td className="py-6 px-6 align-middle">
-                            <div className="relative inline-flex items-center">
-                              <code className="text-xs font-mono text-white/60 bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-colors pl-4 pr-12 py-2.5 rounded-xl select-all">
-                                {displayKey}
-                              </code>
-                              <button
-                                onClick={() => copyToClipboard(apiKey.key, apiKey.id)}
-                                className="absolute right-2 p-1.5 rounded-lg text-white/30 hover:text-white/85 hover:bg-white/[0.04] transition-all cursor-pointer"
-                                title="Copy key"
-                              >
-                                {copiedKey === apiKey.id ? (
-                                  <Check className="w-3.5 h-3.5 text-white" />
-                                ) : (
-                                  <Copy className="w-3.5 h-3.5" />
-                                )}
-                              </button>
-                            </div>
-                          </td>
+                            {/* Key */}
+                            <td className="py-6 px-6 align-middle">
+                              <div className="relative inline-flex items-center">
+                                <code className="text-xs font-mono text-white/60 bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-colors pl-4 pr-12 py-2.5 rounded-xl select-all">
+                                  {displayKey}
+                                </code>
+                                <button
+                                  onClick={() => copyToClipboard(apiKey.key, apiKey.id)}
+                                  className="absolute right-2 p-1.5 rounded-lg text-white/30 hover:text-white/85 hover:bg-white/[0.04] transition-all cursor-pointer"
+                                  title="Copy key"
+                                >
+                                  {copiedKey === apiKey.id ? (
+                                    <Check className="w-3.5 h-3.5 text-white" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            </td>
 
-                          {/* Created */}
-                          <td className="py-6 px-6 align-middle hidden sm:table-cell">
-                            <div className="flex flex-col text-xs font-mono">
-                              <span className="text-white/80">{apiKey.createdAt}</span>
-                              <span className="text-[10px] text-white/30 mt-0.5">{apiKey.id === 'key-1' ? '10:24 AM' : 'Just Now'}</span>
-                            </div>
-                          </td>
+                            {/* Usage Sparkline */}
+                            <td className="py-6 px-6 align-middle hidden lg:table-cell">
+                              <div className="flex flex-col gap-1.5">
+                                <div className="flex items-end gap-1.5 h-7">
+                                  {getKeyActivity(apiKey.id).map((val, idx) => (
+                                    <div
+                                      key={idx}
+                                      style={{ height: `${(val / 55) * 100}%` }}
+                                      className="w-1.5 rounded-full bg-white/[0.06] group-hover:bg-white/[0.18] hover:!bg-white transition-all duration-300"
+                                      title={`${val} requests`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-[9px] font-mono text-white/20 tracking-wider">Usage Sparkline</span>
+                              </div>
+                            </td>
 
-                          {/* Last Used */}
-                          <td className="py-6 px-6 align-middle hidden md:table-cell">
-                            <div className="flex flex-col text-xs font-mono">
-                              <span className="text-white/80">{apiKey.lastUsed}</span>
-                              <span className="text-[10px] text-white/30 mt-0.5">{apiKey.id === 'key-1' ? '11:08 AM' : 'Active'}</span>
-                            </div>
-                          </td>
+                            {/* Last Used */}
+                            <td className="py-6 px-6 align-middle hidden sm:table-cell">
+                              <div className="flex flex-col text-xs font-mono">
+                                <span className="text-white/80">{apiKey.lastUsed}</span>
+                                <span className="text-[10px] text-white/30 mt-0.5">{apiKey.id === 'key-1' ? '11:08 AM' : 'Active'}</span>
+                              </div>
+                            </td>
 
-                          {/* Actions */}
-                          <td className="py-6 px-6 align-middle">
-                            <div className="flex items-center justify-end gap-2.5">
-                              <motion.button
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.95 }}
-                                type="button"
-                                onClick={() => toggleKeyVisibility(apiKey.id)}
-                                className="w-9 h-9 rounded-full border border-white/[0.06] bg-white/[0.01] flex items-center justify-center text-white/40 hover:text-white/90 hover:bg-white/[0.04] hover:border-white/[0.14] hover:shadow-[0_0_15px_rgba(255,255,255,0.08)] transition-all cursor-pointer"
-                                title={isVisible ? 'Hide key' : 'Show key'}
-                              >
-                                {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.95 }}
-                                type="button"
-                                onClick={() => copyToClipboard(apiKey.key, apiKey.id)}
-                                className="w-9 h-9 rounded-full border border-white/[0.06] bg-white/[0.01] flex items-center justify-center text-white/40 hover:text-white/90 hover:bg-white/[0.04] hover:border-white/[0.14] hover:shadow-[0_0_15px_rgba(255,255,255,0.08)] transition-all cursor-pointer"
-                                title="Copy key"
-                              >
-                                {copiedKey === apiKey.id ? (
-                                  <Check className="w-4 h-4 text-white" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.95 }}
-                                type="button"
-                                onClick={() => deleteKey(apiKey.id)}
-                                className="w-9 h-9 rounded-full border border-white/[0.06] bg-white/[0.01] flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/[0.05] hover:shadow-[0_0_15px_rgba(239,68,68,0.08)] transition-all cursor-pointer"
-                                title="Delete key"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </motion.button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                            {/* Actions */}
+                            <td className="py-6 px-6 align-middle">
+                              <div className="flex items-center justify-end gap-2.5">
+                                <motion.button
+                                  whileHover={{ scale: 1.08 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  type="button"
+                                  onClick={() => toggleKeyVisibility(apiKey.id)}
+                                  className="w-9 h-9 rounded-full border border-white/[0.06] bg-white/[0.01] flex items-center justify-center text-white/40 hover:text-white/90 hover:bg-white/[0.04] hover:border-white/[0.14] hover:shadow-[0_0_15px_rgba(255,255,255,0.08)] transition-all cursor-pointer"
+                                  title={isVisible ? 'Hide key' : 'Show key'}
+                                >
+                                  {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.08 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  type="button"
+                                  onClick={() => copyToClipboard(apiKey.key, apiKey.id)}
+                                  className="w-9 h-9 rounded-full border border-white/[0.06] bg-white/[0.01] flex items-center justify-center text-white/40 hover:text-white/90 hover:bg-white/[0.04] hover:border-white/[0.14] hover:shadow-[0_0_15px_rgba(255,255,255,0.08)] transition-all cursor-pointer"
+                                  title="Copy key"
+                                >
+                                  {copiedKey === apiKey.id ? (
+                                    <Check className="w-4 h-4 text-white" />
+                                  ) : (
+                                    <Copy className="w-4 h-4" />
+                                  )}
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.08 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  type="button"
+                                  onClick={() => deleteKey(apiKey.id)}
+                                  className="w-9 h-9 rounded-full border border-white/[0.06] bg-white/[0.01] flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/[0.05] hover:shadow-[0_0_15px_rgba(239,68,68,0.08)] transition-all cursor-pointer"
+                                  title="Delete key"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </motion.button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
 
-              {apiKeys.length === 0 && (
-                <div className="py-16 text-center select-none">
-                  <div className="w-12 h-12 rounded-full bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mx-auto mb-4">
-                    <Key className="w-5 h-5 text-white/30" />
+              {apiKeys.filter((k) => {
+                const mSearch = k.name.toLowerCase().includes(keySearch.toLowerCase());
+                const mEnv = envFilter === 'all' || k.type === envFilter;
+                return mSearch && mEnv;
+              }).length === 0 && (
+                <div className="py-20 text-center select-none">
+                  <div className="w-14 h-14 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-center mx-auto mb-4 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                    <Key className="w-6 h-6 text-white/30" />
                   </div>
-                  <p className="text-white/40 text-sm font-semibold">No API keys yet</p>
-                  <p className="text-white/25 text-xs mt-1">Generate your first key to start authenticating requests</p>
+                  <p className="text-white/50 text-sm font-semibold">No credentials found</p>
+                  <p className="text-white/25 text-xs mt-1 max-w-xs mx-auto">
+                    {keySearch
+                      ? "Try adjusting your search query or switching environments."
+                      : "Create your first API access token to authorize request streams."}
+                  </p>
+                  {keySearch && (
+                    <button
+                      onClick={() => { setKeySearch(''); setEnvFilter('all'); }}
+                      className="mt-4 px-4 py-2 rounded-full border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] text-xs font-semibold text-white/70 transition-all cursor-pointer"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
               )}
+
 
               {/* Bottom Security / Help Panel */}
               <div className="border-t border-white/[0.06] pt-6 mt-6 flex flex-col md:flex-row items-stretch justify-between gap-6 md:gap-0 select-none">
@@ -1107,16 +1234,128 @@ export default function ApiPage({
       {/* Rewarded Ad Modal */}
       <RewardedAdModal isOpen={adOpen} onClose={() => setAdOpen(false)} />
 
+      {/* Create Key Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="bg-[#111111] border border-white/10 text-white max-w-md rounded-2xl shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
+              <Key className="w-5 h-5 text-white/80" />
+              <span>Create Access Token</span>
+            </DialogTitle>
+            <DialogDescription className="text-white/40 text-sm">
+              Configure credentials for authenticating your application.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-5">
+            {/* Name Input */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-white/50 uppercase tracking-wider">Key Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Development Bot"
+                value={newKeyName}
+                onChange={(e) => setNewKeyName(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-sans focus:outline-none focus:border-white/30 focus:bg-white/[0.06] transition-all"
+              />
+            </div>
+
+            {/* Type selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-white/50 uppercase tracking-wider block">Environment</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setNewKeyType('live')}
+                  className={cn(
+                    "py-2.5 rounded-xl border text-xs font-semibold tracking-wider uppercase transition-all cursor-pointer",
+                    newKeyType === 'live'
+                      ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                      : "bg-white/[0.02] border-white/10 text-white/50 hover:bg-white/[0.04] hover:border-white/20"
+                  )}
+                >
+                  Live Environment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewKeyType('test')}
+                  className={cn(
+                    "py-2.5 rounded-xl border text-xs font-semibold tracking-wider uppercase transition-all cursor-pointer",
+                    newKeyType === 'test'
+                      ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                      : "bg-white/[0.02] border-white/10 text-white/50 hover:bg-white/[0.04] hover:border-white/20"
+                  )}
+                >
+                  Test Environment
+                </button>
+              </div>
+            </div>
+
+            {/* Scopes checkboxes */}
+            <div className="space-y-2.5">
+              <label className="text-xs font-mono font-bold text-white/50 uppercase tracking-wider block">API Access Scopes</label>
+              <div className="space-y-2">
+                {[
+                  { id: 'chat:write', label: 'Mindful Chat (write)', desc: 'Interact with calm assistant and run chat sessions.' },
+                  { id: 'journal:write', label: 'AI Journaling (write)', desc: 'Analyze personal journals and generate focus reflections.' },
+                  { id: 'focus:read', label: 'Focus Tracker (read)', desc: 'Fetch user statistics, historical logs, and progress metrics.' },
+                  { id: 'credits:read', label: 'Credits Status (read)', desc: 'Query active API credit balances and transaction logs.' }
+                ].map((scope) => {
+                  const isChecked = newKeyScopes.includes(scope.id);
+                  return (
+                    <label
+                      key={scope.id}
+                      onClick={() => {
+                        setNewKeyScopes((prev) =>
+                          prev.includes(scope.id)
+                            ? prev.filter((s) => s !== scope.id)
+                            : [...prev, scope.id]
+                        );
+                      }}
+                      className={cn(
+                        "flex items-start gap-3 p-3 rounded-xl border cursor-pointer select-none transition-all",
+                        isChecked
+                          ? "bg-white/[0.03] border-white/20"
+                          : "bg-transparent border-white/[0.05] hover:bg-white/[0.01]"
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        readOnly
+                        className="custom-checkbox mt-0.5 shrink-0"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white/90">{scope.label}</span>
+                        <span className="text-[10px] text-white/40 mt-0.5">{scope.desc}</span>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Create Button */}
+            <button
+              onClick={handleCreateKey}
+              className="w-full mt-2 py-3.5 rounded-full bg-white text-black text-sm font-extrabold uppercase tracking-widest hover:bg-neutral-100 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(255,255,255,0.15)]"
+            >
+              <Check className="w-4 h-4" />
+              <span>Create Access Token</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* New Key Dialog */}
       <Dialog open={showNewKeyDialog} onOpenChange={setShowNewKeyDialog}>
         <DialogContent className="bg-[#111111] border-white/10 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold tracking-tight flex items-center gap-2">
-              <Key className="w-5 h-5 text-white" />
+              <Key className="w-5 h-5 text-white animate-pulse" />
               API Key Generated
             </DialogTitle>
             <DialogDescription className="text-white/50 text-sm">
-              Copy this key now. You can also reveal it anytime from your key list.
+              Copy this key now. For security reasons, you cannot retrieve it again later.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
