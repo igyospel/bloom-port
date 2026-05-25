@@ -18,6 +18,7 @@ import {
   Copy,
   Check,
   Zap,
+  Wallet,
   Shield,
   Terminal,
   Sparkles,
@@ -665,7 +666,7 @@ export default function ApiPage({
                         Free Credits
                       </span>
                       <div className="flex items-center gap-1.5 text-xs text-white/40 font-mono select-none">
-                        <Zap className="w-3.5 h-3.5" />
+                        <Wallet className="w-3.5 h-3.5" />
                         <span>CURRENT WALLET: </span>
                         <span className="text-white/85 font-extrabold font-mono">{credits.toLocaleString()} CREDITS</span>
                       </div>
