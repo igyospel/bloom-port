@@ -236,8 +236,9 @@ export default function ApiPage({
   return (
     <div className="bg-[#0a0a0a] text-white font-body-md min-h-screen flex flex-col overflow-x-hidden">
       <SEO 
-        title="Bloomport API - Calm AI Developer Keys & Integration" 
-        description="Access calm intelligence for your applications. Generate, view, and delete API keys, purchase credits, and view quickstart guides." 
+        title="Bloomport API — Developer Keys, Pricing & Integration" 
+        description="Access calm AI for your apps. Generate API keys, purchase credits, and integrate Bloomport's mindful AI into any product. Start free today."
+        path="/api"
       />
       {/* Header */}
       <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/10 text-white shadow-sm shrink-0 bg-black/40 backdrop-blur-sm">

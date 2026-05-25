@@ -25,8 +25,9 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
   return (
     <div className="bg-black text-white font-body-md overflow-hidden h-screen flex flex-col">
       <SEO 
-        title="Bloomport Chat - Mindful AI Assistant & Focus Sessions" 
-        description="Interact with our intelligent calm assistant to clear your mind, structure reflections, and run focused mindful sessions." 
+        title="Bloomport Models — AI Chat & Focus Sessions" 
+        description="Choose from multiple AI models for mindful conversations. Run focus sessions, journal with AI, and reduce cognitive load. Try Bloomport free."
+        path="/models"
       />
       {/* TopNavBar */}
       <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/10 text-white shadow-sm shrink-0 bg-black/40 backdrop-blur-sm">

@@ -13,7 +13,6 @@ import CreditIndicator from '../components/CreditIndicator';
 import AdBanner from '../components/AdBanner';
 import { Changelog1 } from '../components/ui/changelog-1';
 import { ParticleText } from '../components/ui/particle-text';
-import { AiInfrastructureArtwork } from '../components/ui/ai-infrastructure-artwork';
 import { useAuth } from '../context/AuthContext';
 import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
 
@@ -26,8 +25,9 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
   return (
     <div className="font-sans text-white bg-black">
       <SEO 
-        title="Bloomport - High-Performance AI Agent Infrastructure" 
-        description="Build, deploy and scale autonomous AI agents instantly across GPUs, CPUs, and specialized accelerators. The premium enterprise-grade routing, orchestration, and memory layer." 
+        title="Bloomport — Mindful AI Productivity Platform" 
+        description="Declutter your mind and find focus with Bloomport's AI-powered journaling, mindful chat, and focus sessions. Start free with 10,000 credits."
+        path="/"
       />
       <section className="relative min-h-[100svh] flex flex-col overflow-hidden bg-black">
           {/* Subtle ambient glow / particle fog */}
@@ -129,11 +129,6 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
               {/* Left Column: Typography & Action Buttons */}
               <div className="lg:col-span-5 flex flex-col text-left items-start justify-center">
-                {/* Badge */}
-                <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/[0.03] text-[10px] sm:text-[11px] tracking-[0.12em] font-semibold text-white/60 uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  AI Infrastructure for the Future
-                </div>
 
                 {/* Massive Typography Headline */}
                 <h1 className="text-[36px] sm:text-[48px] lg:text-[50px] xl:text-[56px] font-sans font-bold tracking-tight text-white mb-6 leading-[1.1] flex flex-col items-start">
@@ -169,9 +164,18 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                 </div>
               </div>
 
-              {/* Right Column: AI Infrastructure Visuals & Glass Cards */}
-              <div className="lg:col-span-7 w-full h-[400px] sm:h-[480px] lg:h-[550px] flex items-center justify-center relative overflow-visible">
-                <AiInfrastructureArtwork />
+              {/* Right Column: Animated Hero Video */}
+              <div className="lg:col-span-7 w-full flex items-center justify-center relative">
+                <div className="w-full aspect-video rounded-2xl border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.08)] bg-black/50 backdrop-blur-sm">
+                  <video
+                    src="/landingAnimated.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>
