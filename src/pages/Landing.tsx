@@ -13,7 +13,6 @@ import CreditIndicator from '../components/CreditIndicator';
 import AdBanner from '../components/AdBanner';
 import { Changelog1 } from '../components/ui/changelog-1';
 import { ParticleText } from '../components/ui/particle-text';
-import { AiInfrastructureArtwork } from '../components/ui/ai-infrastructure-artwork';
 import { useAuth } from '../context/AuthContext';
 import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
 
@@ -138,49 +137,39 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
             </nav>
           </div>
 
-          {/* New Two-Column Hero Content */}
-          <div className="relative z-20 flex-grow flex items-center w-full max-w-7xl mx-auto px-6 sm:px-12 pt-28 pb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
-              {/* Left Column: Typography & Action Buttons */}
-              <div className="lg:col-span-5 flex flex-col text-left items-start justify-center">
-
-                {/* Massive Typography Headline */}
-                <h1 className="text-[36px] sm:text-[48px] lg:text-[50px] xl:text-[56px] font-sans font-bold tracking-tight text-white mb-6 leading-[1.1] flex flex-col items-start">
-                  <span>Build, deploy and scale</span>
-                  <span className="text-white/60">AI agents with</span>
-                  <div className="w-full mt-2 min-h-[90px] sm:min-h-[110px] lg:min-h-[130px] flex items-center">
-                    <ParticleText />
-                  </div>
-                </h1>
-
-                {/* Description */}
-                <p className="text-sm sm:text-base text-white/55 mb-8 max-w-md leading-relaxed font-sans font-normal">
-                  The fastest way to build, deploy and scale autonomous AI agents across GPUs, CPUs and specialized accelerators.
-                </p>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-                  <button 
-                    onClick={onNavigate} 
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group shadow-[0_8px_30px_rgb(255,255,255,0.15)]"
-                  >
-                    <span>Start Building</span>
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
-                  </button>
-                  
-                  <button 
-                    onClick={onNavigateDocs} 
-                    className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-white/10 bg-white/[0.02] text-white hover:bg-white/[0.06] hover:border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group hover:shadow-[0_0_20px_rgba(255,255,255,0.04)]"
-                  >
-                    <span>View Documentation</span>
-                    <ArrowRight className="w-4 h-4 opacity-50 transform group-hover:translate-x-1 transition-transform duration-200" />
-                  </button>
+          {/* Hero Content */}
+          <div className="relative z-20 flex-grow flex items-center w-full max-w-7xl mx-auto px-6 sm:px-12 pt-32 pb-20">
+            <div className="w-full max-w-2xl flex flex-col text-left items-start justify-center">
+              {/* Massive Typography Headline */}
+              <h1 className="text-[36px] sm:text-[48px] lg:text-[50px] xl:text-[56px] font-sans font-bold tracking-tight text-white mb-6 leading-[1.1] flex flex-col items-start">
+                <span>Build, deploy and scale</span>
+                <span className="text-white/60">AI agents with</span>
+                <div className="w-full mt-2 min-h-[90px] sm:min-h-[110px] lg:min-h-[130px] flex items-center">
+                  <ParticleText />
                 </div>
-              </div>
+              </h1>
 
-              {/* Right Column: AI Infrastructure Visuals & Glass Cards */}
-              <div className="lg:col-span-7 w-full h-[400px] sm:h-[480px] lg:h-[550px] flex items-center justify-center relative overflow-visible z-20">
-                <AiInfrastructureArtwork />
+              {/* Description */}
+              <p className="text-sm sm:text-base text-white/55 mb-8 max-w-md leading-relaxed font-sans font-normal">
+                The fastest way to build, deploy and scale autonomous AI agents across GPUs, CPUs and specialized accelerators.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                <button 
+                  onClick={onNavigate} 
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group shadow-[0_8px_30px_rgb(255,255,255,0.15)]"
+                >
+                  <span>Start Building</span>
+                  <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
+                </button>
+                <button 
+                  onClick={() => { onNavigateDocs(); }}
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-white/10 bg-white/[0.02] text-white hover:bg-white/[0.06] hover:border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group hover:shadow-[0_0_20px_rgba(255,255,255,0.04)]"
+                >
+                  <span>View Documentation</span>
+                  <ArrowRight className="w-4 h-4 opacity-50 transform group-hover:translate-x-1 transition-transform duration-200" />
+                </button>
               </div>
             </div>
           </div>
