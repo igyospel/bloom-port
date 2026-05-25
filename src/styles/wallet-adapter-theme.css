@@ -24,23 +24,25 @@
 }
 
 .wallet-adapter-button-trigger {
-  background: linear-gradient(135deg, #7b8e5c 0%, #5a6e3f 100%);
-  box-shadow: 0 0 20px rgba(123, 142, 92, 0.25);
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
 }
 
 .wallet-adapter-button:not([disabled]):focus-visible {
-  outline: 2px solid #7b8e5c;
+  outline: 2px solid #ffffff;
   outline-offset: 2px;
 }
 
 .wallet-adapter-button:not([disabled]):hover {
-  background-color: rgba(123, 142, 92, 0.12);
+  background-color: rgba(255, 255, 255, 0.08);
   transform: translateY(-1px);
 }
 
 .wallet-adapter-button-trigger:not([disabled]):hover {
-  background: linear-gradient(135deg, #8a9d6b 0%, #6a7d4e 100%);
-  box-shadow: 0 0 28px rgba(123, 142, 92, 0.35);
+  background: #e4e4e7;
+  color: #000000;
+  box-shadow: 0 0 28px rgba(255, 255, 255, 0.12);
 }
 
 .wallet-adapter-button[disabled] {
@@ -128,7 +130,7 @@
 }
 
 .wallet-adapter-dropdown-list-item:not([disabled]):hover {
-  background-color: rgba(123, 142, 92, 0.10);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ── Modal Collapse Button ──────────────────────────────────── */
@@ -179,7 +181,7 @@
 }
 
 .wallet-adapter-modal-button-close:focus-visible {
-  outline: 2px solid #7b8e5c;
+  outline: 2px solid #ffffff;
   outline-offset: 2px;
 }
 
@@ -237,7 +239,7 @@
   background: #0f0f0f;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    0 0 0 1px rgba(123, 142, 92, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
     0 25px 50px -12px rgba(0, 0, 0, 0.7);
   font-family: "Host Grotesk", "Hanken Grotesk", sans-serif;
   flex: 1;
@@ -252,7 +254,7 @@
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(123, 142, 92, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
 .wallet-adapter-modal-wrapper .wallet-adapter-button {
@@ -295,7 +297,7 @@
 }
 
 .wallet-adapter-modal-list .wallet-adapter-button:hover {
-  background-color: rgba(123, 142, 92, 0.08);
+  background-color: rgba(255, 255, 255, 0.08);
   transform: translateX(2px);
 }
 
@@ -363,22 +365,23 @@
   cursor: pointer;
   margin-top: 32px;
   width: 100%;
-  background: linear-gradient(135deg, #7b8e5c 0%, #5a6e3f 100%);
+  background: #ffffff;
+  color: #000000;
   padding: 14px;
   font-size: 16px;
   font-weight: 600;
   border: none;
   border-radius: 14px;
-  color: #fafafa;
   font-family: "Host Grotesk", "Hanken Grotesk", sans-serif;
   transition: all 200ms ease;
-  box-shadow: 0 4px 20px rgba(123, 142, 92, 0.25);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.08);
   letter-spacing: -0.01em;
 }
 
 .wallet-adapter-modal-middle-button:hover {
-  background: linear-gradient(135deg, #8a9d6b 0%, #6a7d4e 100%);
-  box-shadow: 0 6px 28px rgba(123, 142, 92, 0.35);
+  background: #e4e4e7;
+  color: #000000;
+  box-shadow: 0 6px 28px rgba(255, 255, 255, 0.12);
   transform: translateY(-1px);
 }
 

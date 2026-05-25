@@ -169,7 +169,7 @@ export default function AiChatInput({
           onClick={handleSubmit}
           disabled={!input.trim() && selectedCommands.length === 0 && !isLoading}
           size="icon"
-          className="rounded-full bg-[#FAE3B9] text-black hover:bg-[#FAE3B9]/90 shrink-0"
+          className="rounded-full bg-white text-black hover:bg-neutral-200 shrink-0"
         >
           {isLoading ? <StopCircle className="h-5 w-5" /> : <Send className="h-4 w-4" />}
         </Button>

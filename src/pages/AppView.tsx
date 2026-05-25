@@ -2,16 +2,17 @@ import { useState } from 'react';
 import { Menu, X, MessageSquare, History, Settings as SettingsIcon } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { Example } from '../components/ui/ai-actions';
-import { WalletDropdown } from '../components/ui/wallet-dropdown';
 import SessionSidebar from '../components/SessionSidebar';
 import SettingsSidebar from '../components/SettingsSidebar';
 import { cn } from '../lib/utils';
 import SEO from '../components/SEO';
-import CreditIndicator from '../components/CreditIndicator';
+import { useAuth } from '../context/AuthContext';
+import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
 
 export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: { onNavigate: () => void; onNavigateApi: () => void; onNavigateDocs: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { user } = useAuth();
 
   // Parameter states shared between SettingsSidebar and Example (Chat Panel)
   const [selectedModel, setSelectedModel] = useState('anthropic/claude-3.5-sonnet');
@@ -28,7 +29,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
         description="Interact with our intelligent calm assistant to clear your mind, structure reflections, and run focused mindful sessions." 
       />
       {/* TopNavBar */}
-      <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 bg-black border-b border-white/10 text-white shadow-sm shrink-0">
+      <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/10 text-white shadow-sm shrink-0 bg-black/40 backdrop-blur-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigate}>
           <button
             onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(true); }}
@@ -48,8 +49,24 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
         </nav>
 
         <div className="flex items-center gap-4">
-          <CreditIndicator variant="dark" />
-          <WalletDropdown variant="app" />
+          {user ? (
+            <UnifiedProfileControl />
+          ) : (
+            <>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signin' }))}
+                className="text-[13px] font-semibold text-white/60 hover:text-white transition-colors cursor-pointer px-1 py-1"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signup' }))}
+                className="h-8 rounded-full flex items-center px-4 bg-white text-black hover:bg-white/90 text-[12px] font-bold transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-[0.98]"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </header>
 

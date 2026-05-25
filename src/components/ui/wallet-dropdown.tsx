@@ -12,7 +12,7 @@ import {
   Unplug,
   Sparkles,
 } from "lucide-react"
-import { useSolanaWallet } from "@/hooks/useSolanaWallet"
+import { useAuth } from "@/context/AuthContext"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 
@@ -21,7 +21,11 @@ type WalletDropdownProps = {
 }
 
 export function WalletDropdown({ variant }: WalletDropdownProps) {
-  const { connected, publicKey, shortAddress, connect, disconnect } = useSolanaWallet()
+  const { user, logout, updateUserPfp } = useAuth()
+  const connected = !!user
+  const shortAddress = user ? user.name : null
+  const fullAddress = user ? user.email : ""
+  
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
@@ -47,51 +51,35 @@ export function WalletDropdown({ variant }: WalletDropdownProps) {
   }, [open])
 
   const handleCopy = useCallback(async () => {
-    if (!publicKey) return
+    if (!user) return
     try {
-      await navigator.clipboard.writeText(publicKey.toBase58())
+      await navigator.clipboard.writeText(user.email)
       setCopied(true)
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current)
       copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
     } catch {
-      console.warn("Failed to copy address")
+      console.warn("Failed to copy email")
     }
-  }, [publicKey])
+  }, [user])
 
-  const fullAddress = publicKey?.toBase58() ?? ""
+  const connect = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signin' }));
+  }, [])
 
-  // ── Profile Picture (persisted in localStorage per wallet) ──────────
-  const [pfpUrl, setPfpUrl] = useState<string | null>(() => {
-    if (!publicKey) return null
-    const key = `bloomport-pfp-${publicKey.toBase58()}`
-    return localStorage.getItem(key)
-  })
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Re-sync pfpUrl if publicKey changes
-  useEffect(() => {
-    if (!publicKey) {
-      setPfpUrl(null)
-      return
-    }
-    const key = `bloomport-pfp-${publicKey.toBase58()}`
-    setPfpUrl(localStorage.getItem(key))
-  }, [publicKey])
 
   const handlePfpUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !publicKey) return
+    if (!file || !user) return
 
     const reader = new FileReader()
     reader.onload = () => {
       const url = reader.result as string
-      const key = `bloomport-pfp-${publicKey.toBase58()}`
-      localStorage.setItem(key, url)
-      setPfpUrl(url)
+      updateUserPfp(url)
     }
     reader.readAsDataURL(file)
     e.target.value = ""
-  }, [publicKey])
+  }, [user, updateUserPfp])
 
   const triggerPfpUpload = useCallback(() => {
     fileInputRef.current?.click()
@@ -101,9 +89,7 @@ export function WalletDropdown({ variant }: WalletDropdownProps) {
 
   // ── NOT CONNECTED ─────────────────────────────────────────────────────
   if (!connected || !shortAddress) {
-    return (
-      <ConnectButton connect={connect} isLanding={isLanding} />
-    )
+    return null
   }
 
   // ── CONNECTED ─────────────────────────────────────────────────────────
@@ -114,7 +100,7 @@ export function WalletDropdown({ variant }: WalletDropdownProps) {
         onToggle={() => setOpen(!open)}
         isLanding={isLanding}
         shortAddress={shortAddress}
-        pfpUrl={pfpUrl}
+        pfpUrl={user ? user.avatarUrl : null}
       />
 
       {open && (
@@ -122,20 +108,20 @@ export function WalletDropdown({ variant }: WalletDropdownProps) {
           isLanding={isLanding}
           shortAddress={shortAddress}
           fullAddress={fullAddress}
-          pfpUrl={pfpUrl}
+          pfpUrl={user ? user.avatarUrl : null}
           copied={copied}
           onCopy={handleCopy}
           onPfpUpload={triggerPfpUpload}
           onRemovePfp={() => {
-            if (!publicKey) return
-            const key = `bloomport-pfp-${publicKey.toBase58()}`
-            localStorage.removeItem(key)
-            setPfpUrl(null)
+            if (!user) return
+            // Revert to default pfp
+            updateUserPfp("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80")
           }}
           onProfile={() => setOpen(false)}
           onDisconnect={() => {
             setOpen(false)
-            disconnect()
+            logout()
+            window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'landing' }));
           }}
         />
       )}
@@ -153,7 +139,7 @@ export function WalletDropdown({ variant }: WalletDropdownProps) {
 }
 
 /* ================================================================== */
-// CONNECT BUTTON (not connected)
+// CONNECT/LOGIN BUTTON (not connected)
 function ConnectButton({ connect, isLanding }: { connect: () => void; isLanding: boolean }) {
   return (
     <button
@@ -172,7 +158,7 @@ function ConnectButton({ connect, isLanding }: { connect: () => void; isLanding:
         className={cn(
           "absolute inset-0 rounded-full opacity-100 transition-opacity duration-300",
           isLanding
-            ? "bg-gradient-to-r from-[#7b8e5c] via-[#a3b882] to-[#7b8e5c]"
+            ? "bg-gradient-to-r from-black via-zinc-500 to-black"
             : "bg-gradient-to-r from-white/30 via-white/60 to-white/30"
         )}
         style={{ padding: '1.5px' }}
@@ -188,7 +174,7 @@ function ConnectButton({ connect, isLanding }: { connect: () => void; isLanding:
         className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
           background: isLanding
-            ? 'linear-gradient(90deg, transparent, rgba(123,142,92,0.15), transparent)'
+            ? 'linear-gradient(90deg, transparent, rgba(0,0,0,0.08), transparent)'
             : 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)',
           backgroundSize: '200% 100%',
           animation: 'shimmer 2s infinite',
@@ -199,7 +185,7 @@ function ConnectButton({ connect, isLanding }: { connect: () => void; isLanding:
       <div
         className={cn(
           "absolute inset-0 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10",
-          isLanding ? "bg-[#7b8e5c]/30" : "bg-white/10"
+          isLanding ? "bg-black/10" : "bg-white/10"
         )}
       />
 
@@ -208,19 +194,12 @@ function ConnectButton({ connect, isLanding }: { connect: () => void; isLanding:
         <span
           className={cn(
             "relative flex items-center justify-center w-5 h-5 rounded-full transition-transform duration-300 group-hover:scale-110",
-            isLanding ? "bg-[#7b8e5c]/20" : "bg-white/10"
+            isLanding ? "bg-black/10" : "bg-white/10"
           )}
         >
-          <Wallet className={cn("w-3 h-3", isLanding ? "text-[#a3b882]" : "text-white/70")} />
-          {/* Pulse dot */}
-          <span
-            className={cn(
-              "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full animate-ping",
-              isLanding ? "bg-[#a3b882]" : "bg-white/50"
-            )}
-          />
+          <CircleUserRound className={cn("w-3.5 h-3.5", isLanding ? "text-zinc-800" : "text-white/70")} />
         </span>
-        <span>Connect</span>
+        <span>Log In</span>
         <ArrowRightIcon
           className={cn(
             "w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5",
@@ -254,7 +233,7 @@ function ConnectedTrigger({
         "group relative flex items-center gap-2.5 rounded-full pl-1.5 pr-3.5 py-1.5",
         "transition-all duration-300 cursor-pointer",
         isLanding
-          ? "bg-white border border-gray-200 hover:shadow-md hover:border-gray-300"
+          ? "bg-transparent hover:opacity-80"
           : "bg-white/[0.06] border border-white/10 hover:bg-white/[0.10] hover:border-white/20"
       )}
     >
@@ -263,8 +242,8 @@ function ConnectedTrigger({
         <Avatar
           className={cn(
             "h-7 w-7 ring-2 transition-all duration-300",
-            isLanding ? "ring-[#7b8e5c]/30" : "ring-white/15",
-            open && (isLanding ? "ring-[#7b8e5c]/60" : "ring-white/30")
+            isLanding ? "ring-black/15" : "ring-white/15",
+            open && (isLanding ? "ring-black/30" : "ring-white/30")
           )}
         >
           {pfpUrl ? <AvatarImage src={pfpUrl} alt="Profile" /> : null}
@@ -278,24 +257,15 @@ function ConnectedTrigger({
           </AvatarFallback>
         </Avatar>
         {/* Online dot */}
-        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#7b8e5c] ring-2 ring-[#0a0a0a]" />
+        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#0a0a0a]" />
       </div>
 
-      {/* Address */}
-      <span
-        className={cn(
-          "font-mono text-[13px] tracking-tight transition-colors duration-200",
-          isLanding ? "text-gray-800" : "text-white/80"
-        )}
-      >
-        {shortAddress}
-      </span>
-
+      {/* Display Name */}
       {/* Chevron */}
       <ChevronDown
         className={cn(
           "w-3.5 h-3.5 transition-transform duration-300",
-          isLanding ? "text-gray-400" : "text-white/30",
+          isLanding ? "text-black/60" : "text-white/30",
           open && "rotate-180"
         )}
       />
@@ -328,70 +298,40 @@ function ConnectedDropdown({
   onProfile: () => void
   onDisconnect: () => void
 }) {
+  // Always use the sleek dark theme card style to match the website design
+  const cardIsLanding = false;
+
   return (
     <div
       className={cn(
         "absolute right-0 top-full mt-2.5 w-60 rounded-2xl py-2 z-50",
         "animate-in fade-in-0 zoom-in-95 duration-200",
-        isLanding
-          ? "bg-white border border-gray-200 shadow-xl shadow-black/10"
-          : "bg-[#111111] border border-white/10 shadow-xl shadow-black/40"
+        "bg-[#111111] border border-white/10 shadow-xl shadow-black/40"
       )}
     >
-      {/* Wallet identity header */}
-      <div
-        className={cn(
-          "px-4 py-4",
-          isLanding ? "border-b border-gray-100" : "border-b border-white/[0.06]"
-        )}
-      >
+      {/* Identity header */}
+      <div className="px-4 py-4 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Avatar
-              className={cn(
-                "h-11 w-11 ring-2 transition-all duration-300",
-                isLanding ? "ring-gray-200" : "ring-white/10"
-              )}
-            >
+          <div className="relative animate-element">
+            <Avatar className="h-11 w-11 ring-2 ring-white/10">
               {pfpUrl ? <AvatarImage src={pfpUrl} alt="Profile" /> : null}
-              <AvatarFallback
-                className={cn(
-                  isLanding ? "bg-gray-100 text-gray-400" : "bg-white/10 text-white/40"
-                )}
-              >
+              <AvatarFallback className="bg-white/10 text-white/40">
                 <CircleUserRound className="h-5 w-5" />
               </AvatarFallback>
             </Avatar>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#7b8e5c] ring-2 ring-[#111111]" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-[#111111]" />
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <p
-                className={cn(
-                  "text-sm font-semibold tracking-tight truncate",
-                  isLanding ? "text-gray-900" : "text-white"
-                )}
-              >
+              <p className="text-sm font-semibold tracking-tight truncate text-white">
                 {shortAddress}
               </p>
-              <span
-                className={cn(
-                  "text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider",
-                  isLanding
-                    ? "bg-green-50 text-green-600 border border-green-200"
-                    : "bg-[#7b8e5c]/15 text-[#a3b882] border border-[#7b8e5c]/20"
-                )}
-              >
-                Active
+              <span className="bg-white/10 text-white border border-white/20 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                Online
               </span>
             </div>
-            <p
-              className={cn(
-                "text-[10px] font-mono mt-0.5 truncate",
-                isLanding ? "text-gray-400" : "text-white/25"
-              )}
-            >
+            <p className="text-[10px] mt-0.5 truncate text-left text-white/25">
               {fullAddress}
             </p>
           </div>
@@ -401,12 +341,7 @@ function ConnectedDropdown({
         <div className="flex items-center gap-3 mt-3">
           <button
             onClick={onPfpUpload}
-            className={cn(
-              "flex items-center gap-1 text-[11px] font-medium transition-colors cursor-pointer",
-              isLanding
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-white/30 hover:text-white/60"
-            )}
+            className="flex items-center gap-1 text-[11px] font-medium transition-colors cursor-pointer text-white/30 hover:text-white/60"
           >
             <CameraIcon className="h-3 w-3" />
             Change photo
@@ -414,10 +349,7 @@ function ConnectedDropdown({
           {pfpUrl && (
             <button
               onClick={onRemovePfp}
-              className={cn(
-                "text-[11px] font-medium transition-colors cursor-pointer",
-                isLanding ? "text-red-400 hover:text-red-600" : "text-red-400/70 hover:text-red-400"
-              )}
+              className="text-[11px] font-medium transition-colors cursor-pointer text-red-400/70 hover:text-red-400"
             >
               Remove
             </button>
@@ -428,41 +360,36 @@ function ConnectedDropdown({
       {/* Menu items */}
       <div className="py-1">
         <DropdownItem
-          isLanding={isLanding}
+          isLanding={cardIsLanding}
           onClick={onProfile}
           icon={<UserIcon className="h-4 w-4" />}
           label="Your Profile"
         />
         <DropdownItem
-          isLanding={isLanding}
+          isLanding={cardIsLanding}
           onClick={onCopy}
           icon={
             copied ? (
-              <CheckIcon className="h-4 w-4 text-[#7b8e5c]" />
+              <CheckIcon className="h-4 w-4 text-white" />
             ) : (
               <CopyIcon className="h-4 w-4" />
             )
           }
-          label={copied ? "Copied!" : "Copy Address"}
+          label={copied ? "Copied!" : "Copy Email"}
           highlight={copied}
         />
       </div>
 
       {/* Separator */}
-      <div
-        className={cn(
-          "mx-3 my-1 h-px",
-          isLanding ? "bg-gray-100" : "bg-white/[0.06]"
-        )}
-      />
+      <div className="mx-3 my-1 h-px bg-white/[0.06]" />
 
-      {/* Disconnect */}
+      {/* Log Out */}
       <div className="py-1">
         <DropdownItem
-          isLanding={isLanding}
+          isLanding={cardIsLanding}
           onClick={onDisconnect}
-          icon={<Unplug className="h-4 w-4" />}
-          label="Disconnect"
+          icon={<LogOutIcon className="h-4 w-4" />}
+          label="Log Out"
           danger
         />
       </div>
@@ -495,6 +422,8 @@ function DropdownItem({
         "transition-all duration-200 cursor-pointer",
         isLanding
           ? danger
+          : "text-gray-700 hover:bg-gray-50"
+          ? danger
             ? "text-red-500 hover:bg-red-50"
             : "text-gray-700 hover:bg-gray-50"
           : danger
@@ -510,7 +439,7 @@ function DropdownItem({
               ? "text-red-400"
               : "text-red-400/70"
             : highlight
-              ? "text-[#7b8e5c]"
+              ? (isLanding ? "text-zinc-950" : "text-white")
               : isLanding
                 ? "text-gray-400"
                 : "text-white/30"
@@ -521,7 +450,7 @@ function DropdownItem({
       <span
         className={cn(
           "transition-colors duration-200",
-          highlight && !danger && "text-[#7b8e5c]"
+          highlight && !danger && (isLanding ? "text-zinc-950" : "text-white")
         )}
       >
         {label}
@@ -529,4 +458,3 @@ function DropdownItem({
     </button>
   )
 }
-

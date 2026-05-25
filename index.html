@@ -3,11 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bloomport</title>
+    <title>Bloomport - Intelligent Stillness for the Modern Mind</title>
+    
+    <!-- Base Search Engine SEO -->
+    <meta name="description" content="Bloomport is an LLM-powered mindful productivity platform that helps you declutter your mind, find focus, and automate peace through conversational mindfulness." />
+    <meta name="keywords" content="bloomport, mindful productivity, calm ai, mental clarity, focus sessions, journaling ai, mindful chat" />
+    <meta name="author" content="Bloomport Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="google-adsense-account" content="ca-pub-8100210912904825" />
+    <link rel="canonical" href="https://bloom-port.vercel.app" />
+
+    <!-- Open Graph (Facebook, LinkedIn, Discord, WhatsApp) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bloom-port.vercel.app" />
+    <meta property="og:title" content="Bloomport - Intelligent Stillness for the Modern Mind" />
+    <meta property="og:description" content="Declutter your mind, automate your peace, and rediscover focus through conversational mindfulness powered by calm AI." />
+    <meta property="og:image" content="https://bloom-port.vercel.app/bloomportBlack.png" />
+    <meta property="og:site_name" content="Bloomport" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://bloom-port.vercel.app" />
+    <meta name="twitter:title" content="Bloomport - Intelligent Stillness for the Modern Mind" />
+    <meta name="twitter:description" content="Declutter your mind, automate your peace, and rediscover focus through conversational mindfulness powered by calm AI." />
+    <meta name="twitter:image" content="https://bloom-port.vercel.app/bloomportBlack.png" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" href="/bloomportBlack.png" />
+    <link rel="apple-touch-icon" href="/bloomportBlack.png" />
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Bloomport",
+        "url": "https://bloom-port.vercel.app",
+        "logo": "https://bloom-port.vercel.app/bloomportBlack.png",
+        "description": "An LLM-powered mindful productivity platform designed to help you declutter your mind and find focus.",
+        "sameAs": [
+          "https://twitter.com/bloomport",
+          "https://github.com/igyospel/bloom-port"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Bloomport",
+        "url": "https://bloom-port.vercel.app",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://bloom-port.vercel.app/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <!-- Google AdSense – Rewarded Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8100210912904825" crossorigin="anonymous"></script>
+    <script>
+      // AdSense H5 Rewarded Ad (adBreak) initialisation
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adConfig = window.adConfig || function(o) { (window.adsbygoogle = window.adsbygoogle || []).push(o); };
+      window.adBreak  = window.adBreak  || function(o) { (window.adsbygoogle = window.adsbygoogle || []).push(o); };
+
+      // Configure once: publisher ID + sound preference
+      window.adConfig({
+        preloadAdBreaks: 'on',   // pre-fetch ads for faster display
+        sound: 'on',
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Monetag Rewarded Interstitial -->
+    <script>
+      // Register Monetag service worker for push / rewarded ads
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      }
+
+      // Monetag show() — will be called from React when user clicks "Watch Ad"
+      window.monetagShowAd = function() {
+        return new Promise(function(resolve) {
+          // showBanner is injected by Monetag after their script loads
+          if (typeof window.show === 'function') {
+            window.show(11052024, { autoReload: false })
+              .then(function(result) { resolve(result); })
+              .catch(function()    { resolve('error'); });
+          } else {
+            resolve('unavailable');
+          }
+        });
+      };
+    </script>
+    <!-- Monetag Vignette Banner (Zone 11052054) -->
+    <script>(function(s){s.dataset.zone='11052054',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <script src="//cdn.moonicorn.com/act/files/sdk.min.js" async></script>
   </body>
 </html>
-

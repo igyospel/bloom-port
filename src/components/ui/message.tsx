@@ -6,6 +6,7 @@ import {
 import type { ComponentProps, HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import type { UIMessage } from 'ai';
+import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage['role'];
@@ -33,13 +34,15 @@ export const MessageContent = ({
   <div
     className={cn(
       'flex flex-col gap-2 rounded-2xl text-[15px] leading-relaxed px-5 py-4 overflow-hidden shadow-sm',
-      'group-[.is-user]:bg-[#FAE3B9] group-[.is-user]:text-black',
+      'group-[.is-user]:bg-white group-[.is-user]:text-black',
       'group-[.is-assistant]:bg-white/5 group-[.is-assistant]:text-white/90 group-[.is-assistant]:border group-[.is-assistant]:border-white/10',
       className,
     )}
     {...props}
   >
-    <div className="is-user:dark">{children}</div>
+    <div className="is-user:dark">
+      {typeof children === 'string' ? <MarkdownRenderer content={children} /> : children}
+    </div>
   </div>
 );
 

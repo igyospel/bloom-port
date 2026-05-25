@@ -3,6 +3,7 @@ import { ArrowUpIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
 import { isConfigured, streamChatMessage } from "@/lib/openrouter"
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
 
 // ── auto-resize hook ──────────────────────────────────────────────────────────
 function useAutoResizeTextarea({
@@ -158,7 +159,7 @@ function LiveChat() {
                 className={cn(
                   "p-1.5 rounded-lg border transition-colors flex items-center justify-center",
                   inputValue.trim()
-                    ? "bg-[#FAE3B9] border-[#FAE3B9] text-black hover:bg-[#FAE3B9]/90"
+                    ? "bg-white border-white text-black hover:bg-neutral-200"
                     : "border-white/20 text-white/30 cursor-not-allowed",
                 )}
               >
@@ -195,7 +196,7 @@ function LiveChat() {
                   : "bg-white/5 text-white/90 rounded-bl-md border border-white/10",
               )}
             >
-              {msg.content}
+              <MarkdownRenderer content={msg.content} />
             </div>
           </div>
         ))}
@@ -239,7 +240,7 @@ function LiveChat() {
             className={cn(
               "absolute right-2 bottom-2 p-1.5 rounded-lg border transition-colors flex items-center justify-center",
               inputValue.trim()
-                ? "bg-[#FAE3B9] border-[#FAE3B9] text-black hover:bg-[#FAE3B9]/90"
+                ? "bg-white border-white text-black hover:bg-neutral-200"
                 : "border-white/20 text-white/30 cursor-not-allowed",
             )}
           >

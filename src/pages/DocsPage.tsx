@@ -5,6 +5,8 @@ import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
 import AdBanner from '../components/AdBanner';
 import CreditIndicator from '../components/CreditIndicator';
+import { useAuth } from '../context/AuthContext';
+import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
 import {
   Terminal,
   Zap,
@@ -379,11 +381,12 @@ export default function DocsPage({
   const [activeLanguage, setActiveLanguage] = useState('curl');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuth();
 
   return (
     <div className="bg-[#0a0a0a] text-white font-body-md min-h-screen flex flex-col">
       {/* Header */}
-      <header className="w-full z-30 flex items-center justify-between px-6 py-3.5 bg-black border-b border-white/10 text-white shadow-sm shrink-0">
+      <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/10 text-white shadow-sm shrink-0 bg-black/40 backdrop-blur-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigateHome}>
           <button
             onClick={() => setSidebarOpen(true)}
@@ -406,8 +409,24 @@ export default function DocsPage({
         </nav>
 
         <div className="flex items-center gap-4">
-          <CreditIndicator variant="dark" />
-          <WalletDropdown variant="app" />
+          {user ? (
+            <UnifiedProfileControl />
+          ) : (
+            <>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signin' }))}
+                className="text-[13px] font-semibold text-white/60 hover:text-white transition-colors cursor-pointer px-1 py-1"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signup' }))}
+                className="h-8 rounded-full flex items-center px-4 bg-white text-black hover:bg-white/90 text-[12px] font-bold transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-[0.98]"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </header>
 

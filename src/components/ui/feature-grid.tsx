@@ -45,7 +45,7 @@ const FeatureCard: React.FC<{ feature: Feature }> = ({ feature }) => (
         </p>
       </div>
       <div className="flex justify-end mt-4">
-        <ArrowRight className="h-5 w-5 text-white/50 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#FAE3B9]" />
+        <ArrowRight className="h-5 w-5 text-white/50 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
       </div>
     </div>
   </a>

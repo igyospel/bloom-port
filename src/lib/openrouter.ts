@@ -1,6 +1,3 @@
-const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
-const MODEL = 'deepseek/deepseek-v4-flash:free';
-
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -16,45 +13,51 @@ interface StreamChunk {
     };
     finish_reason: string | null;
   }[];
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
 }
 
-const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined;
+let apiConfigured = true;
+
+// Query the backend configuration check asynchronously on load
+fetch('/api/config')
+  .then((res) => res.json())
+  .then((data) => {
+    apiConfigured = !!data.configured;
+  })
+  .catch(() => {
+    apiConfigured = false;
+  });
 
 export function isConfigured(): boolean {
-  return !!API_KEY;
+  return apiConfigured;
 }
 
 export async function* streamChatMessage(
   messages: Message[],
+  options?: {
+    model?: string;
+    temperature?: number;
+    max_tokens?: number;
+  },
   signal?: AbortSignal,
 ): AsyncGenerator<string> {
-  const res = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
+  const res = await fetch('/api/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${API_KEY}`,
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'Bloomport',
     },
     body: JSON.stringify({
-      model: MODEL,
       messages,
-      max_tokens: 2048,
-      stream: true,
+      model: options?.model,
+      temperature: options?.temperature,
+      max_tokens: options?.max_tokens,
     }),
     signal,
   });
 
   if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(
-      `OpenRouter API error (${res.status}): ${res.statusText}${body ? ` — ${body}` : ''}`,
-    );
+    const body = await res.json().catch(() => null);
+    const errMsg = body?.error || `Server error (${res.status}): ${res.statusText}`;
+    throw new Error(errMsg);
   }
 
   const reader = res.body?.getReader();

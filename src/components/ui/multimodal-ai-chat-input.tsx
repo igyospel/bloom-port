@@ -207,7 +207,7 @@ function PureSendButton({
         'rounded-full p-1.5 h-fit border transition-colors flex items-center justify-center',
         isDisabled
           ? 'border-white/10 text-white/20 cursor-not-allowed'
-          : 'bg-[#FAE3B9] border-[#FAE3B9] text-black hover:bg-[#FAE3B9]/90',
+          : 'bg-white border-white text-black hover:bg-neutral-200',
       )}
       onClick={(e) => { e.preventDefault(); if (!isDisabled) submitForm(); }}
       disabled={isDisabled}
