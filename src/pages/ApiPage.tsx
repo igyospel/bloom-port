@@ -378,7 +378,11 @@ export default function ApiPage({
           {/* Live Infrastructure Canvas Visualization */}
           <ApiInfrastructureVisualization />
 
-          <div className="max-w-5xl mx-auto text-center relative z-10 flex flex-col items-center">
+          {/* Top Volumetric Light Beam */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.035),transparent_75%)] pointer-events-none z-0" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[350px] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+
+          <div className="max-w-6xl mx-auto text-center relative z-10 flex flex-col items-center">
             
             {/* Announcement Pill */}
             <motion.div
@@ -390,7 +394,7 @@ export default function ApiPage({
               {/* shine sweep */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
               <Sparkles className="w-3 h-3 text-white/80" />
-              <span className="text-[11px] font-bold tracking-wider text-white/80 uppercase">Now Available</span>
+              <span className="text-[11px] font-bold tracking-wider text-white/80 uppercase font-mono">Now Available</span>
             </motion.div>
 
             {/* Headline */}
@@ -438,65 +442,125 @@ export default function ApiPage({
               </button>
             </motion.div>
 
-            {/* Stats Panel Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className={cn(
-                "w-full max-w-[1000px] mt-24 md:mt-28 py-8 px-6 sm:px-10 rounded-[32px] bg-white/[0.015] border border-white/[0.06] backdrop-blur-[20px] shadow-[0_0_60px_rgba(255,255,255,0.02)] hover:border-white/[0.14] hover:shadow-[0_0_80px_rgba(255,255,255,0.05)] transition-all duration-500 relative overflow-hidden group"
-              )}
-            >
-              {/* shine beam background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent pointer-events-none translate-y-[-20%] group-hover:via-white/[0.035] transition-all duration-500" />
+            {/* Stats Panel Bento Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-[1100px] mt-24 md:mt-28 select-none relative z-20">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 relative z-10">
-                {/* Item 1: Uptime */}
-                <div className="flex flex-col items-center text-center px-4">
-                  <Clock className="w-5 h-5 text-white/40 mb-3" />
-                  <p className="text-3xl font-bold tracking-tight text-white mb-1">
-                    <AnimatedCounter value={99.99} decimals={2} suffix="%" />
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-white/40 font-bold tracking-wider uppercase">Uptime SLA</p>
+              {/* Card 1: Uptime SLA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.025)' }}
+                className="rounded-[24px] border border-white/[0.06] bg-white/[0.015] backdrop-blur-[20px] shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-6 flex flex-col items-start text-left relative overflow-hidden group transition-all duration-300 cursor-pointer"
+              >
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                <div className="flex items-center gap-2.5 mb-4 text-white/40 group-hover:text-white/70 transition-colors duration-300">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-[10px] font-bold tracking-wider uppercase font-mono">Uptime SLA</span>
                 </div>
-
-                {/* Separator 1 */}
-                <div className="hidden lg:block w-px h-12 bg-white/[0.08] self-center" />
-
-                {/* Item 2: Latency */}
-                <div className="flex flex-col items-center text-center px-4">
-                  <Globe className="w-5 h-5 text-white/40 mb-3" />
-                  <p className="text-3xl font-bold tracking-tight text-white mb-1">
-                    <AnimatedCounter value={200} prefix="< " suffix="ms" />
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-white/40 font-bold tracking-wider uppercase">Global Latency</p>
+                <p className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 font-display">
+                  <AnimatedCounter value={99.99} decimals={2} suffix="%" />
+                </p>
+                <div className="mt-auto w-full pt-4 border-t border-white/[0.04]">
+                  <div className="flex items-center gap-1.5 w-full justify-between">
+                    {Array.from({ length: 16 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "w-1 h-3.5 rounded-full transition-all duration-300",
+                          i === 15 ? "bg-emerald-500 animate-pulse" : "bg-emerald-500/80 group-hover:bg-emerald-400"
+                        )}
+                      />
+                    ))}
+                  </div>
                 </div>
+              </motion.div>
 
-                {/* Separator 2 */}
-                <div className="hidden lg:block w-px h-12 bg-white/[0.08] self-center" />
-
-                {/* Item 3: Developers */}
-                <div className="flex flex-col items-center text-center px-4">
-                  <Users className="w-5 h-5 text-white/40 mb-3" />
-                  <p className="text-3xl font-bold tracking-tight text-white mb-1">
-                    <AnimatedCounter value={2400} suffix="+" />
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-white/40 font-bold tracking-wider uppercase">Active Developers</p>
+              {/* Card 2: Global Latency */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.025)' }}
+                className="rounded-[24px] border border-white/[0.06] bg-white/[0.015] backdrop-blur-[20px] shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-6 flex flex-col items-start text-left relative overflow-hidden group transition-all duration-300 cursor-pointer"
+              >
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                <div className="flex items-center gap-2.5 mb-4 text-white/40 group-hover:text-white/70 transition-colors duration-300">
+                  <Globe className="w-4 h-4" />
+                  <span className="text-[10px] font-bold tracking-wider uppercase font-mono">Global Latency</span>
                 </div>
-
-                {/* Separator 3 */}
-                <div className="hidden lg:block w-px h-12 bg-white/[0.08] self-center" />
-
-                {/* Item 4: Requests */}
-                <div className="flex flex-col items-center text-center px-4">
-                  <Database className="w-5 h-5 text-white/40 mb-3" />
-                  <p className="text-3xl font-bold tracking-tight text-white mb-1">
-                    <AnimatedCounter value={50} suffix="M+" />
-                  </p>
-                  <p className="text-[10px] sm:text-[11px] text-white/40 font-bold tracking-wider uppercase">Requests Served</p>
+                <p className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 font-display">
+                  <AnimatedCounter value={200} prefix="< " suffix="ms" />
+                </p>
+                <div className="mt-auto w-full text-[9px] font-mono text-white/30 border-t border-white/[0.04] pt-4 flex items-center justify-between">
+                  <span className="group-hover:text-white/50 transition-colors">SFO 12ms</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span className="group-hover:text-white/50 transition-colors">LHR 54ms</span>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+
+              {/* Card 3: Developers */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.025)' }}
+                className="rounded-[24px] border border-white/[0.06] bg-white/[0.015] backdrop-blur-[20px] shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-6 flex flex-col items-start text-left relative overflow-hidden group transition-all duration-300 cursor-pointer"
+              >
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                <div className="flex items-center gap-2.5 mb-4 text-white/40 group-hover:text-white/70 transition-colors duration-300">
+                  <Users className="w-4 h-4" />
+                  <span className="text-[10px] font-bold tracking-wider uppercase font-mono">Developers</span>
+                </div>
+                <p className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 font-display">
+                  <AnimatedCounter value={2400} suffix="+" />
+                </p>
+                <div className="mt-auto w-full border-t border-white/[0.04] pt-4 flex items-center justify-between">
+                  <div className="flex -space-x-2 overflow-hidden">
+                    {[
+                      'https://randomuser.me/api/portraits/women/32.jpg',
+                      'https://randomuser.me/api/portraits/men/44.jpg',
+                      'https://randomuser.me/api/portraits/women/68.jpg',
+                      'https://randomuser.me/api/portraits/men/12.jpg'
+                    ].map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt="Developer"
+                        className="inline-block h-5 w-5 rounded-full ring-1 ring-black object-cover"
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[9px] font-mono text-emerald-400 font-semibold bg-emerald-500/[0.08] border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                    42 online
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Card 4: Requests */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.025)' }}
+                className="rounded-[24px] border border-white/[0.06] bg-white/[0.015] backdrop-blur-[20px] shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-6 flex flex-col items-start text-left relative overflow-hidden group transition-all duration-300 cursor-pointer"
+              >
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                <div className="flex items-center gap-2.5 mb-4 text-white/40 group-hover:text-white/70 transition-colors duration-300">
+                  <Database className="w-4 h-4" />
+                  <span className="text-[10px] font-bold tracking-wider uppercase font-mono">Requests Served</span>
+                </div>
+                <p className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 font-display">
+                  <AnimatedCounter value={50} suffix="M+" />
+                </p>
+                <div className="mt-auto w-full border-t border-white/[0.04] pt-4 flex items-center justify-between font-mono text-[9px] text-white/30">
+                  <span className="group-hover:text-white/50 transition-colors">GET /v1/chat</span>
+                  <span className="text-emerald-500 font-bold animate-pulse">200 OK</span>
+                </div>
+              </motion.div>
+
+            </div>
 
           </div>
         </section>
