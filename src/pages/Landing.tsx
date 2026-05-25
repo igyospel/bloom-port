@@ -38,9 +38,9 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-25"
+              className="w-full h-full object-cover opacity-85"
             />
-            <div className="absolute inset-0 bg-black/60 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/20 to-black/90 pointer-events-none" />
           </div>
 
           {/* Subtle ambient glow / particle fog */}
