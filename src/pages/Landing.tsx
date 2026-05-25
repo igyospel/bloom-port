@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Zap, Sparkles, ShieldCheck } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import TextRevealFAQs from '../components/ui/text-reveal-faqs';
 import { TrustedByShowcase } from '../components/ui/trusted-by-showcase';
@@ -25,8 +25,8 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
   return (
     <div className="font-sans text-white bg-black">
       <SEO 
-        title="Bloomport — Mindful AI Productivity Platform" 
-        description="Declutter your mind and find focus with Bloomport's AI-powered journaling, mindful chat, and focus sessions. Start free with 10,000 credits."
+        title="Bloomport — Free AI Service & Free LLM Chat (No Credit Card)" 
+        description="Bloomport is a 100% free AI service and developer LLM API. Access unlimited free AI chat, mindful focus sessions, and API keys with no credit card required."
         path="/"
       />
       <section className="relative min-h-[100svh] flex flex-col overflow-hidden bg-black">
@@ -178,6 +178,76 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
       <TrustedByShowcase />
 
       <Features />
+
+      {/* Free AI Service & Compute Capacity Section */}
+      <section className="py-24 sm:py-32 px-4 sm:px-8 border-t border-white/5 bg-[#050505] relative overflow-hidden">
+        {/* Subtle grid mesh backdrop */}
+        <div className="absolute inset-0 opacity-[0.01] pointer-events-none mix-blend-overlay"
+          style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.95\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat' }}
+        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.015),transparent_70%)] pointer-events-none z-0" />
+
+        <div className="max-w-6xl mx-auto relative z-10 select-none">
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/10 bg-white/[0.02] text-[9px] font-mono tracking-widest text-white/50 uppercase mb-4">
+              <Sparkles className="w-3 h-3 animate-pulse" />
+              <span>Free Access Tier</span>
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4 text-white">
+              Start Free. <span className="text-white/60 font-medium font-serif italic">Scale when ready.</span>
+            </h2>
+            <p className="text-white/45 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+              Get immediate access to enterprise-grade conversational stillness. Generate API keys, run chats, and automate peace completely free.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {/* Box 1: Free Credits */}
+            <div className="rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:border-white/15 hover:bg-white/[0.02] transition-all duration-300 p-6 flex flex-col items-start text-left relative overflow-hidden group">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-center mb-6 shadow-sm">
+                <Zap className="w-4 h-4 text-white/60" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">10,000 Free Credits</h3>
+              <p className="text-xs text-white/40 leading-relaxed">
+                New accounts receive 10,000 compute credits instantly. Generates over 50 mindful chat sessions or 100 journal entries with zero cost.
+              </p>
+            </div>
+
+            {/* Box 2: Developer Keys */}
+            <div className="rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:border-white/15 hover:bg-white/[0.02] transition-all duration-300 p-6 flex flex-col items-start text-left relative overflow-hidden group">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-center mb-6 shadow-sm">
+                <ShieldCheck className="w-4 h-4 text-white/60" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Free Developer Keys</h3>
+              <p className="text-xs text-white/40 leading-relaxed">
+                Generate secure API tokens and integrate conversational stillness directly into your systems. Free tier supports up to 60 requests/minute.
+              </p>
+            </div>
+
+            {/* Box 3: Zero Commitments */}
+            <div className="rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:border-white/15 hover:bg-white/[0.02] transition-all duration-300 p-6 flex flex-col items-start text-left relative overflow-hidden group">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-center mb-6 shadow-sm">
+                <ArrowRight className="w-4 h-4 text-white/60" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">No Credit Card Needed</h3>
+              <p className="text-xs text-white/40 leading-relaxed">
+                Explore the platform, test model responses, and configure workflows without entering payment information. Top up capacity only when needed.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              onClick={onNavigate}
+              className="px-7 py-3.5 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-wider hover:bg-neutral-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-[0_8px_30px_rgba(255,255,255,0.15)] flex items-center gap-2 group"
+            >
+              <span>Get 10,000 Free Credits</span>
+              <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-200" />
+            </button>
+          </div>
+        </div>
+      </section>
+
       <div className="w-full bg-[#0a0a0a] py-4">
          <div className="max-w-6xl mx-auto px-4 md:px-8">
             <AdBanner layout="horizontal" />

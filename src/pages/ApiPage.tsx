@@ -275,8 +275,8 @@ export default function ApiPage({
   return (
     <div className="bg-[#0a0a0a] text-white font-body-md min-h-screen flex flex-col overflow-x-hidden">
       <SEO 
-        title="Bloomport API — Developer Keys, Pricing & Integration" 
-        description="Access calm AI for your apps. Generate API keys, purchase credits, and integrate Bloomport's mindful AI into any product. Start free today."
+        title="Bloomport API — Free LLM API & Free AI Service Integration" 
+        description="Access our free LLM API. Generate free developer API keys, configure rate-limited endpoints, and integrate conversational AI into your apps with 10,000 free compute credits instantly."
         path="/api"
       />
       {/* Header */}
