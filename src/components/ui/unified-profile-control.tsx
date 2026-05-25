@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode, type ChangeEvent } from 'react';
 import {
-  Zap,
+  Wallet,
   ChevronDown,
   ChevronRight,
   UserIcon,
@@ -186,7 +186,7 @@ export function UnifiedProfileControl() {
           className="h-full flex items-center gap-1 px-2.5 hover:opacity-85 active:scale-[0.98] transition-all duration-200 cursor-pointer"
         >
           <div className="relative flex items-center justify-center">
-            <Zap className="w-3 h-3 text-white fill-white drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
+            <Wallet className="w-3 h-3 text-white fill-white drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
           </div>
           <span className="text-[11px] font-sans font-medium text-white tracking-[-0.02em] select-none">
             {credits.toLocaleString()}
@@ -286,7 +286,7 @@ export function UnifiedProfileControl() {
                   setDropdownOpen(false);
                   setAdOpen(true);
                 }}
-                icon={<Zap className="w-3 h-3" />}
+                icon={<Wallet className="w-3 h-3" />}
                 label="Credits"
               />
               <DropdownRowItem

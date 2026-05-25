@@ -526,7 +526,7 @@ export default function ApiPage({
 
                       {/* Credits Counter chip */}
                       <div className="flex items-center gap-2.5 py-3.5 px-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] transition-colors select-none mb-8">
-                        <Zap className="w-4 h-4 text-white/60" />
+                        <Wallet className="w-4 h-4 text-white/60" />
                         <span className="text-xs font-semibold tracking-tight text-white/80">
                           {tier.credits} credits <span className="text-white/35 font-normal">/ month</span>
                         </span>
@@ -621,7 +621,7 @@ export default function ApiPage({
                       {/* Top content */}
                       <div className={cn("flex flex-col items-center", topup.featured ? "mt-5 mb-4" : "mb-4")}>
                         <div className="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mb-3 group-hover/item:border-white/[0.12] transition-colors shadow-sm select-none">
-                          <Zap className="w-3.5 h-3.5 text-white/50 group-hover/item:text-white transition-colors" />
+                          <Wallet className="w-3.5 h-3.5 text-white/50 group-hover/item:text-white transition-colors" />
                         </div>
                         <span className="text-lg font-bold tracking-tight text-white font-sans leading-none">
                           {topup.amount}

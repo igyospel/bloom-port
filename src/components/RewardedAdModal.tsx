@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useCredits } from '../context/CreditContext';
-import { Sparkles, X, CheckCircle, AlertCircle, Zap, Play, Loader2 } from 'lucide-react';
+import { Sparkles, X, CheckCircle, AlertCircle, Wallet, Play, Loader2 } from 'lucide-react';
 
 interface RewardedAdModalProps {
   isOpen: boolean;
@@ -131,7 +131,7 @@ export default function RewardedAdModal({ isOpen, onClose }: RewardedAdModalProp
               <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10">
                 <span className="text-xs text-white/40 font-medium uppercase tracking-wide">Current balance</span>
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-white/60" />
+                  <Wallet className="w-3.5 h-3.5 text-white/60" />
                   <span className="text-sm font-semibold">{credits.toLocaleString()}</span>
                 </div>
               </div>

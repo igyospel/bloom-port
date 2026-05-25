@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Zap } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { useCredits } from '../context/CreditContext';
 import RewardedAdModal from './RewardedAdModal';
 
@@ -26,7 +26,7 @@ export default function CreditIndicator({ variant = 'dark' }: CreditIndicatorPro
             : 'bg-white/[0.06] border-white/10 text-white hover:bg-white/[0.10]',
         ].join(' ')}
       >
-        <Zap className="w-3 h-3 shrink-0" />
+        <Wallet className="w-3 h-3 shrink-0" />
         <span>{credits.toLocaleString()}</span>
       </button>
 
