@@ -13,6 +13,7 @@ import CreditIndicator from '../components/CreditIndicator';
 import AdBanner from '../components/AdBanner';
 import { Changelog1 } from '../components/ui/changelog-1';
 import { ParticleText } from '../components/ui/particle-text';
+import { AiInfrastructureArtwork } from '../components/ui/ai-infrastructure-artwork';
 import { useAuth } from '../context/AuthContext';
 import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
 
@@ -30,8 +31,21 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
         path="/"
       />
       <section className="relative min-h-[100svh] flex flex-col overflow-hidden bg-black">
+          {/* Background Video Backdrop */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden z-0 select-none pointer-events-none">
+            <video
+              src="/landingAnimated.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover opacity-25"
+            />
+            <div className="absolute inset-0 bg-black/60 pointer-events-none" />
+          </div>
+
           {/* Subtle ambient glow / particle fog */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.02),transparent_50%)] pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.02),transparent_50%)] pointer-events-none z-10" />
           
           <header className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/10 text-white shadow-sm shrink-0 bg-black/40 backdrop-blur-sm">
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -164,18 +178,9 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                 </div>
               </div>
 
-              {/* Right Column: Animated Hero Video */}
-              <div className="lg:col-span-7 w-full flex items-center justify-center relative">
-                <div className="w-full aspect-video rounded-2xl border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.08)] bg-black/50 backdrop-blur-sm">
-                  <video
-                    src="/landingAnimated.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              {/* Right Column: AI Infrastructure Visuals & Glass Cards */}
+              <div className="lg:col-span-7 w-full h-[400px] sm:h-[480px] lg:h-[550px] flex items-center justify-center relative overflow-visible z-20">
+                <AiInfrastructureArtwork />
               </div>
             </div>
           </div>
