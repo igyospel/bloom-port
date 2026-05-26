@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -30,7 +30,9 @@ import {
   ArrowUpRight,
   Sparkles,
   Terminal,
-  Grid
+  Grid,
+  Upload,
+  Camera
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { User as AuthUser } from '../context/AuthContext';
@@ -86,15 +88,54 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
   // Profile settings state (persisted locally)
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
-  const [pfpUrl, setPfpUrl] = useState(user.avatarUrl || '');
+  const [pfpUrl, setPfpUrl] = useState<string>(() => localStorage.getItem('bp_settings_pfp') || user.avatarUrl || '');
   const [username, setUsername] = useState(() => localStorage.getItem('bp_settings_username') || 'argadev');
   const [website, setWebsite] = useState(() => localStorage.getItem('bp_settings_website') || 'bloomport.fun');
   const [location, setLocation] = useState(() => localStorage.getItem('bp_settings_location') || 'Jakarta, ID');
   const [company, setCompany] = useState(() => localStorage.getItem('bp_settings_company') || 'Bloomport AI');
   const [bio, setBio] = useState(() => localStorage.getItem('bp_settings_bio') || 'Building autonomous agentic workflows and mindful developer systems.');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState(false);
+
+  const handleImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setPfpUrl(dataUrl);
+      localStorage.setItem('bp_settings_pfp', dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => setIsDragging(false);
+
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPfpUrl('');
+    localStorage.removeItem('bp_settings_pfp');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // Security settings state (persisted locally)
   const [tfaEnabled, setTfaEnabled] = useState(() => localStorage.getItem('bp_settings_tfa') === 'true');
@@ -176,7 +217,9 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
     setProfileSaving(true);
     setProfileSuccess(false);
     
-    const { error } = await updateProfile(name, pfpUrl);
+    // Pass empty string for pfpUrl if it's a data URL (too large for some APIs)
+    const urlForApi = pfpUrl.startsWith('data:') ? '' : pfpUrl;
+    const { error } = await updateProfile(name, urlForApi);
     setProfileSaving(false);
     if (!error) {
       localStorage.setItem('bp_settings_username', username);
@@ -427,9 +470,23 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
                   {/* Left Form Settings */}
                   <form onSubmit={handleProfileSave} className="space-y-6">
-                    {/* Avatar Display with Floating Achievement Chips */}
-                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-2">
-                      <div className="relative w-20 h-20 shrink-0 select-none">
+                    {/* Avatar Upload — Local File / Gallery */}
+                    <div className="flex flex-col sm:flex-row items-start gap-6 pb-2">
+                      {/* Hidden file input */}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileInputChange}
+                      />
+
+                      {/* Avatar Preview */}
+                      <div
+                        className="relative w-20 h-20 shrink-0 cursor-pointer group select-none"
+                        onClick={() => fileInputRef.current?.click()}
+                        title="Click to upload image"
+                      >
                         <div className="absolute inset-0 rounded-full border border-white/10 bg-white/[0.02] flex items-center justify-center overflow-hidden">
                           {pfpUrl ? (
                             <img src={pfpUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -437,20 +494,46 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                             <User className="w-9 h-9 text-white/20" />
                           )}
                         </div>
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Camera className="w-5 h-5 text-white" />
+                        </div>
                         {/* Glow Ring */}
                         <div className="absolute -inset-1.5 rounded-full border border-white/5 bg-transparent pointer-events-none -z-10 animate-pulse" />
                       </div>
 
-                      <div className="space-y-2 w-full">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-white/60 font-mono">Profile Image Link</label>
-                        <input 
-                          type="url"
-                          value={pfpUrl}
-                          onChange={(e) => setPfpUrl(e.target.value)}
-                          placeholder="https://example.com/avatar.jpg"
-                          className="w-full max-w-md bg-white/[0.03] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 transition-all"
-                        />
-                        <p className="text-[10px] text-white/30 leading-normal">Provide a secure URL linking to your profile avatar.</p>
+                      {/* Drop Zone */}
+                      <div
+                        className={`flex-1 flex flex-col items-center justify-center gap-3 p-5 rounded-xl border-2 border-dashed transition-all cursor-pointer ${
+                          isDragging
+                            ? 'border-white/40 bg-white/[0.04]'
+                            : 'border-white/10 hover:border-white/20 bg-white/[0.01] hover:bg-white/[0.02]'
+                        }`}
+                        onClick={() => fileInputRef.current?.click()}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                      >
+                        <div className="p-2.5 rounded-full bg-white/[0.05] border border-white/10">
+                          <Upload className="w-4 h-4 text-white/50" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xs font-mono text-white/70 font-semibold">
+                            {pfpUrl ? 'Change Photo' : 'Upload Photo'}
+                          </p>
+                          <p className="text-[10px] text-white/30 mt-0.5">
+                            Click or drag & drop · JPG, PNG, GIF, WebP
+                          </p>
+                        </div>
+                        {pfpUrl && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveImage}
+                            className="text-[9px] font-mono uppercase tracking-wider text-white/30 hover:text-red-400 transition-colors cursor-pointer flex items-center gap-1"
+                          >
+                            <Trash2 className="w-2.5 h-2.5" /> Remove photo
+                          </button>
+                        )}
                       </div>
                     </div>
 
