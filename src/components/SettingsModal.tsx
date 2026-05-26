@@ -304,7 +304,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                 <div className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
                 <div className="w-2 h-2 rounded-full bg-white" />
               </div>
-              <span className="text-[10px] font-bold font-mono tracking-[0.2em] uppercase text-white/55">Bloomport Console</span>
+              <span className="text-[10px] font-bold font-sans tracking-[0.2em] uppercase text-white/55">Bloomport Console</span>
             </div>
 
             {/* Main Tabs Navigation */}
@@ -337,7 +337,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
             <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_75%,rgba(255,255,255,0.01)_80%,transparent_85%)] bg-[length:200%_200%] animate-shine pointer-events-none" />
             
             <div className="flex items-center justify-between">
-              <span className="text-[9px] uppercase tracking-wider font-mono font-bold text-white/30">Bloomport Pro</span>
+              <span className="text-[9px] uppercase tracking-wider font-sans font-bold text-white/30">Bloomport Pro</span>
               <span className="inline-flex items-center gap-1 text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/15">
                 <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" /> LIVE
               </span>
@@ -1151,7 +1151,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                   <div className="absolute right-0 top-0 w-24 h-24 bg-white/[0.02] rounded-full blur-2xl" />
                   <div className="space-y-1.5 relative z-10">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white font-mono">Bloomport Unlimited Plan</span>
+                      <span className="text-sm font-bold text-white font-sans">Bloomport Unlimited Plan</span>
                       <span className="text-[9px] font-bold font-mono bg-white text-black px-1.5 py-0.5 rounded tracking-wide uppercase">Active</span>
                     </div>
                     <p className="text-xs text-white/45 leading-relaxed font-mono">Continuous dev credits allocation with auto credit refills.</p>
