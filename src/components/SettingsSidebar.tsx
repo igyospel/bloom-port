@@ -7,7 +7,7 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
-  { id: 'mistralai/mistral-small-2603', name: 'BP011 - 3.0', desc: 'Next-generation fast model by Mistral AI.' }
+  { id: 'mistralai/mistral-small-2603', name: 'BP011 - 3.0', desc: 'latestmodel by bloomport ai' }
 ];
 
 interface SettingsSidebarProps {
