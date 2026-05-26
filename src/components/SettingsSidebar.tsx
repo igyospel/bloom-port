@@ -7,8 +7,8 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
+  { id: 'openai/gpt-5-nano', name: 'BP011 - 1.0 ( FASTEST )', desc: 'Next-generation hyper-fast model by OpenAI.' },
   { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', desc: 'Most intelligent model. Great for complex tasks.' },
-  { id: 'openai/gpt-4o', name: 'GPT-4o', desc: 'Fast, versatile model for general reasoning and coding.' },
   { id: 'google/gemini-pro-1.5', name: 'Gemini 1.5 Pro', desc: 'Massive context window and multimodal reasoning.' },
   { id: 'minimax/minimax-m2.5', name: 'Minimax-M2.5', desc: 'Bilingual chat model specialized in Indonesian/English.' }
 ];

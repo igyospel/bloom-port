@@ -15,7 +15,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
   const { user } = useAuth();
 
   // Parameter states shared between SettingsSidebar and Example (Chat Panel)
-  const [selectedModel, setSelectedModel] = useState('anthropic/claude-3.5-sonnet');
+  const [selectedModel, setSelectedModel] = useState('openai/gpt-5-nano');
   const [temperature, setTemperature] = useState(0.7);
   const [contextLength, setContextLength] = useState(128); // 128K
   const [showSettings, setShowSettings] = useState(true);
