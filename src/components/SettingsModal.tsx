@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { 
   X, 
@@ -172,7 +173,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
     { type: 'team', label: 'Workspace Team', icon: <Users className="w-4 h-4" /> },
   ];
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
       <motion.div 
@@ -678,6 +679,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
 
         </main>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }
