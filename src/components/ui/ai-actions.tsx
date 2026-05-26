@@ -25,6 +25,7 @@ import { isConfigured, streamChatMessage } from "@/lib/openrouter"
 import { useSessions, ChatMessage } from "../../context/SessionContext"
 import AdBanner from "../AdBanner"
 import { MODELS } from "../SettingsSidebar"
+import { MarkdownRenderer } from "./markdown-renderer"
 
 // ── auto-resize hook ──────────────────────────────────────────────────────────
 function useAutoResizeTextarea({
@@ -397,8 +398,8 @@ const Example = ({
                     </div>
 
                     {/* Content */}
-                    <div className="text-[14px] text-white/80 leading-relaxed font-sans markdown-body space-y-2">
-                      {message.content}
+                    <div className="text-[14px] text-white/80 leading-relaxed font-sans space-y-2">
+                      <MarkdownRenderer content={message.content} />
                     </div>
 
                     {/* Flowchart architecture visual fallback */}
