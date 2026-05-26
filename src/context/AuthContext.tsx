@@ -33,7 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ── MOCK SYSTEM FALLBACKS (If Supabase is not configured yet) ──
   const loadMockUser = () => {
     const saved = localStorage.getItem('bloomport-user');
-    return saved ? JSON.parse(saved) : null;
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    // Restore local-uploaded avatar (stored separately because data URLs are too large for bloomport-user)
+    const localPfp = localStorage.getItem('bp_settings_pfp');
+    if (localPfp) parsed.avatarUrl = localPfp;
+    return parsed;
   };
 
   useEffect(() => {
@@ -173,12 +178,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (name: string, pfpUrl?: string) => {
     if (!user) return { error: new Error('User not logged in') };
-    
-    const updatedUser = { ...user, name, ...(pfpUrl ? { avatarUrl: pfpUrl } : {}) };
+
+    // Always update local state — including data URLs from local file uploads
+    const updatedUser = {
+      ...user,
+      name,
+      ...(pfpUrl !== undefined && pfpUrl !== '' ? { avatarUrl: pfpUrl } : {}),
+    };
     setUser(updatedUser);
 
     if (!isConfigured) {
-      localStorage.setItem('bloomport-user', JSON.stringify(updatedUser));
+      // For mock mode: persist user but skip data URLs (too large for JSON localStorage)
+      const userToStore = { ...updatedUser };
+      if (userToStore.avatarUrl?.startsWith('data:')) {
+        // Keep existing stored avatarUrl, photo already saved under bp_settings_pfp
+        const existing = localStorage.getItem('bloomport-user');
+        const prev = existing ? JSON.parse(existing) : {};
+        userToStore.avatarUrl = prev.avatarUrl || '';
+      }
+      localStorage.setItem('bloomport-user', JSON.stringify(userToStore));
       return { error: null };
     }
 
@@ -186,13 +204,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
         const updates: any = { name };
-        if (pfpUrl) updates.avatar_url = pfpUrl;
-        
+        // Only write to DB if it's a real URL (not a data URL)
+        if (pfpUrl && !pfpUrl.startsWith('data:')) {
+          updates.avatar_url = pfpUrl;
+        }
+
         const { error } = await supabase
           .from('profiles')
           .update(updates)
           .eq('id', authUser.id);
-        
+
         if (error) throw error;
       }
       return { error: null };

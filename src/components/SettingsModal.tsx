@@ -217,9 +217,9 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
     setProfileSaving(true);
     setProfileSuccess(false);
     
-    // Pass empty string for pfpUrl if it's a data URL (too large for some APIs)
-    const urlForApi = pfpUrl.startsWith('data:') ? '' : pfpUrl;
-    const { error } = await updateProfile(name, urlForApi);
+    // Pass pfpUrl directly — AuthContext handles data URLs for local state,
+    // and skips writing data URLs to the DB automatically
+    const { error } = await updateProfile(name, pfpUrl);
     setProfileSaving(false);
     if (!error) {
       localStorage.setItem('bp_settings_username', username);
