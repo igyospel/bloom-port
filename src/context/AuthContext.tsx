@@ -15,6 +15,7 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<{ error: any }>;
   logout: () => Promise<void>;
   updateUserPfp: (pfpUrl: string) => Promise<void>;
+  updateProfile: (name: string, pfpUrl?: string) => Promise<{ error: any }>;
   isMock: boolean;
 }
 
@@ -170,6 +171,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (name: string, pfpUrl?: string) => {
+    if (!user) return { error: new Error('User not logged in') };
+    
+    const updatedUser = { ...user, name, ...(pfpUrl ? { avatarUrl: pfpUrl } : {}) };
+    setUser(updatedUser);
+
+    if (!isConfigured) {
+      localStorage.setItem('bloomport-user', JSON.stringify(updatedUser));
+      return { error: null };
+    }
+
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        const updates: any = { name };
+        if (pfpUrl) updates.avatar_url = pfpUrl;
+        
+        const { error } = await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', authUser.id);
+        
+        if (error) throw error;
+      }
+      return { error: null };
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -180,6 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithGoogle,
         logout,
         updateUserPfp,
+        updateProfile,
         isMock: !isConfigured,
       }}
     >

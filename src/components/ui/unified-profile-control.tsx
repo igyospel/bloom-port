@@ -19,6 +19,7 @@ import { useCredits } from '../../context/CreditContext';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar, AvatarImage, AvatarFallback } from './avatar';
 import RewardedAdModal from '../RewardedAdModal';
+import SettingsModal from '../SettingsModal';
 import { cn } from '../../lib/utils';
 
 // ── Dropdown Particle Flow Background Component ──────────────────────────────
@@ -112,11 +113,12 @@ const DropdownParticleField: React.FC = () => {
 
 export function UnifiedProfileControl() {
   const { credits } = useCredits();
-  const { user, logout, updateUserPfp } = useAuth();
+  const { user, logout, updateUserPfp, updateProfile } = useAuth();
   
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [adOpen, setAdOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -300,7 +302,7 @@ export function UnifiedProfileControl() {
               <DropdownRowItem
                 onClick={() => {
                   setDropdownOpen(false);
-                  alert("Account settings integration in progress.");
+                  setSettingsOpen(true);
                 }}
                 icon={<Settings className="w-3 h-3" />}
                 label="Settings"
@@ -374,6 +376,17 @@ export function UnifiedProfileControl() {
 
       {/* Reward Credits Modal */}
       <RewardedAdModal isOpen={adOpen} onClose={() => setAdOpen(false)} />
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {settingsOpen && (
+          <SettingsModal 
+            onClose={() => setSettingsOpen(false)} 
+            user={user} 
+            updateProfile={updateProfile} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
