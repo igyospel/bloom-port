@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { User as AuthUser } from '../context/AuthContext';
+import { useCredits } from '../context/CreditContext';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -80,60 +81,85 @@ interface Suggestion {
 
 export default function SettingsModal({ onClose, user, updateProfile }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
+  const { credits } = useCredits();
   
-  // Profile settings state
+  // Profile settings state (persisted locally)
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [pfpUrl, setPfpUrl] = useState(user.avatarUrl || '');
-  const [username, setUsername] = useState('argadev');
-  const [website, setWebsite] = useState('bloomport.fun');
-  const [location, setLocation] = useState('Jakarta, ID');
-  const [company, setCompany] = useState('Bloomport AI');
-  const [bio, setBio] = useState('Building autonomous agentic workflows and mindful developer systems.');
+  const [username, setUsername] = useState(() => localStorage.getItem('bp_settings_username') || 'argadev');
+  const [website, setWebsite] = useState(() => localStorage.getItem('bp_settings_website') || 'bloomport.fun');
+  const [location, setLocation] = useState(() => localStorage.getItem('bp_settings_location') || 'Jakarta, ID');
+  const [company, setCompany] = useState(() => localStorage.getItem('bp_settings_company') || 'Bloomport AI');
+  const [bio, setBio] = useState(() => localStorage.getItem('bp_settings_bio') || 'Building autonomous agentic workflows and mindful developer systems.');
   
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState(false);
 
-  // Security settings state
-  const [tfaEnabled, setTfaEnabled] = useState(false);
-  const [passkeyEnabled, setPasskeyEnabled] = useState(true);
+  // Security settings state (persisted locally)
+  const [tfaEnabled, setTfaEnabled] = useState(() => localStorage.getItem('bp_settings_tfa') === 'true');
+  const [passkeyEnabled, setPasskeyEnabled] = useState(() => localStorage.getItem('bp_settings_passkey') !== 'false');
   const [secSuccess, setSecSuccess] = useState(false);
 
-  // API Keys state
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    { id: '1', name: 'Production Gateway Key', key: 'ms_live_7x88fA99dJi81Lkn0bFdCQ', created: '2026-05-25', usage: 142050 },
-    { id: '2', name: 'Staging Development Key', key: 'ms_test_3go62TzOrGMJf1kn0bFdCQ', created: '2026-05-26', usage: 8200 }
-  ]);
+  // API Keys state (persisted locally)
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>(() => {
+    const savedKeys = localStorage.getItem('bp_settings_apikeys');
+    if (savedKeys) {
+      try { return JSON.parse(savedKeys); } catch (e) {}
+    }
+    return [
+      { id: '1', name: 'Production Gateway Key', key: 'bp_live_7x88fA99dJi81Lkn0bFdCQ', created: '2026-05-25', usage: 142050 },
+      { id: '2', name: 'Staging Development Key', key: 'bp_test_3go62TzOrGMJf1kn0bFdCQ', created: '2026-05-26', usage: 8200 }
+    ];
+  });
   const [newKeyName, setNewKeyName] = useState('');
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
 
-  // Notification settings state
-  const [notifs, setNotifs] = useState({
-    criticalAlerts: true,
-    operationalLogs: true,
-    productUpdates: false,
-    agentEvents: true,
-    aiSummarizer: true
+  // Notification settings state (persisted locally)
+  const [notifs, setNotifs] = useState(() => {
+    const saved = localStorage.getItem('bp_settings_notifs');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      criticalAlerts: true,
+      operationalLogs: true,
+      productUpdates: false,
+      agentEvents: true,
+      aiSummarizer: true
+    };
   });
 
-  // AI Preferences state
-  const [aiPrefs, setAiPrefs] = useState({
-    autonomousActions: true,
-    agentPermissions: false,
-    autoDeploy: true,
-    autoRefactoring: false,
-    autoBugFixes: true
+  // AI Preferences state (persisted locally)
+  const [aiPrefs, setAiPrefs] = useState(() => {
+    const saved = localStorage.getItem('bp_settings_aiprefs');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      autonomousActions: true,
+      agentPermissions: false,
+      autoDeploy: true,
+      autoRefactoring: false,
+      autoBugFixes: true
+    };
   });
 
   // Billing settings state
   const [creditsRefillActive, setCreditsRefillActive] = useState(true);
 
-  // Team settings state
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    { id: '1', name: user.name, email: user.email, role: 'Owner', status: 'online', agentAccess: 42 },
-    { id: '2', name: 'Sarah Chen', email: 'sarah.c@mindstudio.ai', role: 'Member', status: 'online', agentAccess: 12 },
-    { id: '3', name: 'Alex Mercer', email: 'alex.m@mindstudio.ai', role: 'Admin', status: 'offline', agentAccess: 28 }
-  ]);
+  // Team settings state (persisted locally)
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
+    const savedTeam = localStorage.getItem('bp_settings_team');
+    if (savedTeam) {
+      try { return JSON.parse(savedTeam); } catch (e) {}
+    }
+    return [
+      { id: '1', name: user.name, email: user.email, role: 'Owner', status: 'online', agentAccess: 42 },
+      { id: '2', name: 'Sarah Chen', email: 'sarah.c@bloomport.fun', role: 'Member', status: 'online', agentAccess: 12 },
+      { id: '3', name: 'Alex Mercer', email: 'alex.m@bloomport.fun', role: 'Admin', status: 'offline', agentAccess: 28 }
+    ];
+  });
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'Admin' | 'Member'>('Member');
 
@@ -153,6 +179,11 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
     const { error } = await updateProfile(name, pfpUrl);
     setProfileSaving(false);
     if (!error) {
+      localStorage.setItem('bp_settings_username', username);
+      localStorage.setItem('bp_settings_website', website);
+      localStorage.setItem('bp_settings_location', location);
+      localStorage.setItem('bp_settings_company', company);
+      localStorage.setItem('bp_settings_bio', bio);
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
     } else {
@@ -168,17 +199,21 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
     const newKey: ApiKey = {
       id: Date.now().toString(),
       name: newKeyName.trim(),
-      key: `ms_live_${randomChars.substring(0, 22)}`,
+      key: `bp_live_${randomChars.substring(0, 22)}`,
       created: new Date().toISOString().split('T')[0],
       usage: 0
     };
     
-    setApiKeys([...apiKeys, newKey]);
+    const nextKeys = [...apiKeys, newKey];
+    setApiKeys(nextKeys);
+    localStorage.setItem('bp_settings_apikeys', JSON.stringify(nextKeys));
     setNewKeyName('');
   };
 
   const handleDeleteKey = (id: string) => {
-    setApiKeys(apiKeys.filter(k => k.id !== id));
+    const nextKeys = apiKeys.filter(k => k.id !== id);
+    setApiKeys(nextKeys);
+    localStorage.setItem('bp_settings_apikeys', JSON.stringify(nextKeys));
   };
 
   const handleCopyKey = (key: string, id: string) => {
@@ -200,7 +235,9 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
       agentAccess: 5
     };
 
-    setTeamMembers([...teamMembers, newMember]);
+    const nextTeam = [...teamMembers, newMember];
+    setTeamMembers(nextTeam);
+    localStorage.setItem('bp_settings_team', JSON.stringify(nextTeam));
     setInviteEmail('');
     alert(`Teammate invite sent to ${inviteEmail}!`);
   };
@@ -267,7 +304,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                 <div className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
                 <div className="w-2 h-2 rounded-full bg-white" />
               </div>
-              <span className="text-[10px] font-bold font-mono tracking-[0.2em] uppercase text-white/55">MindStudio Console</span>
+              <span className="text-[10px] font-bold font-mono tracking-[0.2em] uppercase text-white/55">Bloomport Console</span>
             </div>
 
             {/* Main Tabs Navigation */}
@@ -300,7 +337,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
             <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_75%,rgba(255,255,255,0.01)_80%,transparent_85%)] bg-[length:200%_200%] animate-shine pointer-events-none" />
             
             <div className="flex items-center justify-between">
-              <span className="text-[9px] uppercase tracking-wider font-mono font-bold text-white/30">MindStudio Pro</span>
+              <span className="text-[9px] uppercase tracking-wider font-mono font-bold text-white/30">Bloomport Pro</span>
               <span className="inline-flex items-center gap-1 text-[8px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/15">
                 <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" /> LIVE
               </span>
@@ -322,8 +359,8 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                 <p className="font-bold text-white/85 mt-0.5">42</p>
               </div>
               <div>
-                <p className="text-white/30 text-[9px]">API Requests</p>
-                <p className="font-bold text-white/85 mt-0.5">8.4M</p>
+                <p className="text-white/30 text-[9px]">Credits Balance</p>
+                <p className="font-bold text-white/85 mt-0.5">{credits.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -1076,7 +1113,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                       </div>
                       
                       <p className="text-[11px] font-mono leading-relaxed text-white/40">
-                        When active, MindStudio aggregates notification alerts into a single smart feed summary.
+                        When active, Bloomport aggregates notification alerts into a single smart feed summary.
                       </p>
                       
                       <div className="h-px bg-white/[0.04]" />
@@ -1114,7 +1151,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                   <div className="absolute right-0 top-0 w-24 h-24 bg-white/[0.02] rounded-full blur-2xl" />
                   <div className="space-y-1.5 relative z-10">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white font-mono">MindStudio Unlimited Plan</span>
+                      <span className="text-sm font-bold text-white font-mono">Bloomport Unlimited Plan</span>
                       <span className="text-[9px] font-bold font-mono bg-white text-black px-1.5 py-0.5 rounded tracking-wide uppercase">Active</span>
                     </div>
                     <p className="text-xs text-white/45 leading-relaxed font-mono">Continuous dev credits allocation with auto credit refills.</p>
@@ -1133,7 +1170,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                       <span>Compute Allowances</span>
                     </div>
                     <p className="text-[10px] text-white/40 leading-normal">
-                      Usage limit of 15.0M monthly requests. Staging developer pipelines do not impact production key credits usage.
+                      Your current balance is <strong className="text-white">{credits.toLocaleString()} credits</strong>. Staging developer pipelines do not impact production key credits usage.
                     </p>
                   </div>
 
