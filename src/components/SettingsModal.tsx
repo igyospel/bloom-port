@@ -281,22 +281,59 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.97, y: 10 }}
         transition={{ type: 'spring', damping: 28, stiffness: 380 }}
-        className="relative w-full max-w-5xl h-[700px] rounded-xl border border-white/[0.08] bg-[#050505] text-white flex overflow-hidden shadow-[0_0_80px_rgba(255,255,255,0.02)] z-10 font-sans"
+        className="relative w-full max-w-5xl h-[100dvh] md:h-[700px] rounded-none md:rounded-xl border-0 md:border border-white/[0.08] bg-[#050505] text-white flex flex-col md:flex-row overflow-hidden shadow-[0_0_80px_rgba(255,255,255,0.02)] z-10 font-sans"
       >
         {/* Soft Radial Ambient Glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.02),transparent_70%)] pointer-events-none z-0" />
         
-        {/* Top-right Console Close */}
+        {/* Top-right Console Close (Desktop Only) */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg border border-transparent hover:border-white/10 transition-all cursor-pointer z-30"
+          className="hidden md:flex absolute top-4 right-4 p-2 text-white/40 hover:text-white hover:bg-white/5 rounded-lg border border-transparent hover:border-white/10 transition-all cursor-pointer z-30"
           aria-label="Close panel"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* ================= LEFT SIDEBAR ================= */}
-        <aside className="w-[260px] border-r border-white/[0.08] bg-black/40 flex flex-col p-4 shrink-0 relative z-10 justify-between">
+        {/* Mobile Header Console */}
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-white/[0.08] bg-black/40 z-20 shrink-0 select-none">
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-4 h-4 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
+              <div className="w-2 h-2 rounded-full bg-white" />
+            </div>
+            <span className="text-[10px] font-bold font-sans tracking-[0.2em] uppercase text-white/55">Bloomport Console</span>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1.5 text-white/40 hover:text-white hover:bg-white/5 rounded-md transition-all cursor-pointer"
+            aria-label="Close panel"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Mobile Horizontal Navigation Tabs */}
+        <div className="flex md:hidden border-b border-white/[0.08] bg-black/60 p-2.5 sticky top-0 z-20 overflow-x-auto gap-1 scrollbar-none shrink-0 select-none">
+          {sidebarItems.map((item) => (
+            <button
+              key={item.type}
+              onClick={() => setActiveTab(item.type as TabType)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-mono tracking-wide uppercase transition-all whitespace-nowrap cursor-pointer border border-transparent",
+                activeTab === item.type 
+                  ? "bg-white text-black font-bold shadow-md"
+                  : "text-white/45 hover:text-white/80 hover:bg-white/[0.02]"
+              )}
+            >
+              {item.icon}
+              <span className="ml-1">{item.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* ================= LEFT SIDEBAR (Desktop Only) ================= */}
+        <aside className="hidden md:flex w-[260px] border-r border-white/[0.08] bg-black/40 flex-col p-4 shrink-0 relative z-10 justify-between">
           <div className="space-y-6">
             {/* Header Identity */}
             <div className="flex items-center gap-2.5 px-2 pt-2 select-none">
@@ -391,7 +428,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                   {/* Left Form Settings */}
                   <form onSubmit={handleProfileSave} className="space-y-6">
                     {/* Avatar Display with Floating Achievement Chips */}
-                    <div className="flex items-center gap-6 pb-2">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-2">
                       <div className="relative w-20 h-20 shrink-0 select-none">
                         <div className="absolute inset-0 rounded-full border border-white/10 bg-white/[0.02] flex items-center justify-center overflow-hidden">
                           {pfpUrl ? (
@@ -404,7 +441,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                         <div className="absolute -inset-1.5 rounded-full border border-white/5 bg-transparent pointer-events-none -z-10 animate-pulse" />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2 w-full">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-white/60 font-mono">Profile Image Link</label>
                         <input 
                           type="url"
@@ -418,7 +455,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                     </div>
 
                     {/* Metadata Input Fields */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-white/50 font-mono">Full Name</label>
                         <input 
@@ -799,8 +836,8 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                 </div>
 
                 {/* Generate New Key Form */}
-                <form onSubmit={handleGenerateKey} className="flex gap-3 items-end bg-[#080808] border border-white/[0.08] p-4 rounded-xl">
-                  <div className="flex-1 space-y-1.5">
+                <form onSubmit={handleGenerateKey} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-[#080808] border border-white/[0.08] p-4 rounded-xl">
+                  <div className="flex-grow space-y-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-white/50 font-mono">Key Description Name</label>
                     <input 
                       type="text"
@@ -813,7 +850,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                   </div>
                   <button
                     type="submit"
-                    className="h-9 px-4 bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all rounded-lg text-xs font-mono font-bold tracking-wide uppercase flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    className="h-9 px-4 bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all rounded-lg text-xs font-mono font-bold tracking-wide uppercase flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" /> Generate Key
                   </button>
@@ -823,16 +860,16 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                 <div className="space-y-3">
                   <span className="text-[10px] uppercase font-mono tracking-wider text-white/35 block">Active API Credentials</span>
                   {apiKeys.map((keyObj) => (
-                    <div key={keyObj.id} className="flex items-center justify-between p-3.5 border border-white/[0.08] bg-[#080808] rounded-xl text-xs font-mono">
-                      <div className="space-y-1.5">
+                    <div key={keyObj.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 border border-white/[0.08] bg-[#080808] rounded-xl text-xs font-mono">
+                      <div className="space-y-1.5 w-full sm:w-auto">
                         <div className="flex items-center gap-2">
                           <p className="font-semibold text-white">{keyObj.name}</p>
                           <span className="text-[9px] font-mono text-white/30 bg-white/5 px-2 py-0.5 rounded">
                             {keyObj.usage.toLocaleString()} reqs
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-white/50 text-[11px] bg-black border border-white/[0.04] px-2 py-0.5 rounded select-all">
+                        <div className="flex items-center gap-2 max-w-full">
+                          <span className="font-mono text-white/50 text-[11px] bg-black border border-white/[0.04] px-2 py-0.5 rounded select-all truncate max-w-[200px] sm:max-w-none">
                             {keyObj.key}
                           </span>
                           <button
@@ -930,7 +967,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                   {/* Left Column: Form & Members list */}
                   <div className="space-y-6">
                     {/* Invite Member form */}
-                    <form onSubmit={handleInviteMember} className="flex gap-2.5 items-end bg-[#080808] border border-white/[0.08] p-4 rounded-xl">
+                    <form onSubmit={handleInviteMember} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end bg-[#080808] border border-white/[0.08] p-4 rounded-xl">
                       <div className="flex-grow space-y-1.5">
                         <label className="text-[10px] font-bold uppercase tracking-wider text-white/50 font-mono">Teammate Email Address</label>
                         <input 
@@ -938,7 +975,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                           required
                           value={inviteEmail}
                           onChange={(e) => setInviteEmail(e.target.value)}
-                          placeholder="teammate@mindstudio.ai"
+                          placeholder="teammate@bloomport.fun"
                           className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-white/30"
                         />
                       </div>
@@ -955,7 +992,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                       </div>
                       <button
                         type="submit"
-                        className="h-9 px-4 bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all rounded-lg text-xs font-mono font-bold uppercase tracking-wide flex items-center gap-1 cursor-pointer shrink-0"
+                        className="h-9 px-4 bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all rounded-lg text-xs font-mono font-bold uppercase tracking-wide flex items-center justify-center gap-1 cursor-pointer shrink-0"
                       >
                         <Plus className="w-3.5 h-3.5" /> Invite
                       </button>
@@ -965,7 +1002,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                     <div className="space-y-3">
                       <span className="text-[10px] uppercase font-mono tracking-wider text-white/35 block">Workspace Core Operator</span>
                       {teamMembers.map((member) => (
-                        <div key={member.id} className="flex items-center justify-between p-3 border border-white/[0.08] bg-[#080808] rounded-xl text-xs font-mono">
+                        <div key={member.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-white/[0.08] bg-[#080808] rounded-xl text-xs font-mono">
                           <div className="flex items-center gap-3">
                             <div className="relative">
                               <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center font-bold text-white uppercase text-xs">
@@ -1290,35 +1327,37 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                   <p className="text-xs text-white/45 mt-1 leading-relaxed">Full system activity logs for compliance and infrastructure oversight.</p>
                 </div>
 
-                <div className="border border-white/[0.08] bg-[#080808] rounded-xl overflow-hidden font-mono select-none">
-                  {/* Logs Header */}
-                  <div className="grid grid-cols-4 gap-4 px-4 py-2 bg-white/5 text-[9px] font-bold uppercase text-white/40 tracking-wider">
-                    <span>Timestamp</span>
-                    <span>Operation Event</span>
-                    <span>Operator Identity</span>
-                    <span className="text-right">Status Code</span>
-                  </div>
+                <div className="border border-white/[0.08] bg-[#080808] rounded-xl overflow-hidden font-mono select-none w-full overflow-x-auto">
+                  <div className="min-w-[650px]">
+                    {/* Logs Header */}
+                    <div className="grid grid-cols-4 gap-4 px-4 py-2 bg-white/5 text-[9px] font-bold uppercase text-white/40 tracking-wider">
+                      <span>Timestamp</span>
+                      <span>Operation Event</span>
+                      <span>Operator Identity</span>
+                      <span className="text-right">Status Code</span>
+                    </div>
 
-                  {/* Logs Feed */}
-                  <div className="divide-y divide-white/[0.04] text-[10px] text-white/60 max-h-[400px] overflow-y-auto">
-                    {[
-                      { time: '2026-05-27 02:18:11', event: 'API_KEY_COPY', user: 'argadev', status: 'SUCCESS' },
-                      { time: '2026-05-27 01:52:05', event: 'DEPLOY_AGENT_BP011', user: 'Sarah Chen', status: 'SUCCESS' },
-                      { time: '2026-05-27 00:12:44', event: 'PROFILE_SETTING_SYNC', user: 'argadev', status: 'SUCCESS' },
-                      { time: '2026-05-26 23:42:01', event: 'TEAM_INVITE_SEND', user: 'argadev', status: 'PENDING' },
-                      { time: '2026-05-26 19:10:52', event: 'API_KEY_REVOKE', user: 'Sarah Chen', status: 'SUCCESS' },
-                      { time: '2026-05-26 14:02:19', event: 'CREDIT_AUTO_REFILL', user: 'SYSTEM_AUTOPAY', status: 'SUCCESS' }
-                    ].map((log, i) => (
-                      <div key={i} className="grid grid-cols-4 gap-4 px-4 py-3 hover:bg-white/[0.01] transition-colors">
-                        <span className="text-white/40">{log.time}</span>
-                        <span className="font-bold text-white/80">{log.event}</span>
-                        <span>{log.user}</span>
-                        <span className={cn(
-                          "text-right font-bold",
-                          log.status === 'SUCCESS' ? "text-emerald-400" : log.status === 'PENDING' ? "text-amber-400" : "text-red-400"
-                        )}>{log.status}</span>
-                      </div>
-                    ))}
+                    {/* Logs Feed */}
+                    <div className="divide-y divide-white/[0.04] text-[10px] text-white/60 max-h-[400px] overflow-y-auto">
+                      {[
+                        { time: '2026-05-27 02:18:11', event: 'API_KEY_COPY', user: 'argadev', status: 'SUCCESS' },
+                        { time: '2026-05-27 01:52:05', event: 'DEPLOY_AGENT_BP011', user: 'Sarah Chen', status: 'SUCCESS' },
+                        { time: '2026-05-27 00:12:44', event: 'PROFILE_SETTING_SYNC', user: 'argadev', status: 'SUCCESS' },
+                        { time: '2026-05-26 23:42:01', event: 'TEAM_INVITE_SEND', user: 'argadev', status: 'PENDING' },
+                        { time: '2026-05-26 19:10:52', event: 'API_KEY_REVOKE', user: 'Sarah Chen', status: 'SUCCESS' },
+                        { time: '2026-05-26 14:02:19', event: 'CREDIT_AUTO_REFILL', user: 'SYSTEM_AUTOPAY', status: 'SUCCESS' }
+                      ].map((log, i) => (
+                        <div key={i} className="grid grid-cols-4 gap-4 px-4 py-3 hover:bg-white/[0.01] transition-colors">
+                          <span className="text-white/40">{log.time}</span>
+                          <span className="font-bold text-white/80">{log.event}</span>
+                          <span>{log.user}</span>
+                          <span className={cn(
+                            "text-right font-bold",
+                            log.status === 'SUCCESS' ? "text-emerald-400" : log.status === 'PENDING' ? "text-amber-400" : "text-red-400"
+                          )}>{log.status}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -1353,7 +1392,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
 
                   <div className="space-y-4 font-mono">
                     {/* Revoke keys */}
-                    <div className="flex justify-between items-center text-xs">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center text-xs">
                       <div className="space-y-0.5 max-w-[70%]">
                         <p className="font-bold text-white">Revoke All Active API Keys</p>
                         <p className="text-[10px] text-white/40">Immediately breaks all developer system webhooks and CLI gateways.</p>
@@ -1363,6 +1402,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                         onClick={() => {
                           if (confirm("Are you absolutely sure you want to revoke ALL API keys? This will break production connections immediately.")) {
                             setApiKeys([]);
+                            localStorage.setItem('bp_settings_apikeys', JSON.stringify([]));
                             alert("All keys revoked.");
                           }
                         }}
@@ -1375,7 +1415,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                     <div className="h-px bg-red-500/10" />
 
                     {/* Delete workspace */}
-                    <div className="flex justify-between items-center text-xs">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center text-xs">
                       <div className="space-y-0.5 max-w-[70%]">
                         <p className="font-bold text-white">Permanently Delete Workspace</p>
                         <p className="text-[10px] text-white/40">Removes databases, tables, 42 agents setups, and credits cache.</p>
@@ -1387,7 +1427,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                             alert("Workspace deletion is disabled in the developer preview sandbox.");
                           }
                         }}
-                        className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 active:scale-[0.98] transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 active:scale-[0.98] transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer select-none"
                       >
                         Delete Workspace
                       </button>
