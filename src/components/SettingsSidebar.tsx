@@ -7,7 +7,7 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
-  { id: 'openai/gpt-5.4-nano', name: 'BP011 - 2.0', desc: 'Next-generation hyper-fast model by OpenAI.' }
+  { id: 'mistralai/mistral-small-2603', name: 'BP011 - 3.0', desc: 'Next-generation fast model by Mistral AI.' }
 ];
 
 interface SettingsSidebarProps {
