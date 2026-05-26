@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import SEO from '../../components/SEO';
 import AdBanner from '../../components/AdBanner';
 import { Logo } from '../../components/Logo';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabaseClient';
 
 interface HabitTrackerProps {
   onNavigateHome: () => void;
@@ -86,45 +88,100 @@ function getDateOffset(offset: number): Date {
 }
 
 export default function HabitTracker({ onNavigateHome, onNavigateApp }: HabitTrackerProps) {
+  const { user, isMock } = useAuth();
   const [datesData, setDatesData] = useState<{ [dateStr: string]: boolean[] }>({});
   const [todayHabits, setTodayHabits] = useState<boolean[]>(new Array(habits.length).fill(false));
   const [streak, setStreak] = useState(0);
 
   const todayStr = getLocalDateStr();
 
-  // Load from LocalStorage
+  // Load from Supabase (if logged in) or LocalStorage (as guest/fallback)
   useEffect(() => {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as StoredData;
-        const dates = parsed.dates || {};
-        setDatesData(dates);
+    const fetchAndLoadHabits = async () => {
+      if (!isMock && user) {
+        try {
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          if (authUser) {
+            const { data, error } = await supabase
+              .from('habits')
+              .select('date_str, completed_habits')
+              .eq('user_id', authUser.id);
 
-        if (dates[todayStr]) {
-          setTodayHabits(dates[todayStr]);
-        } else {
-          // Initialize empty array for today
-          const newToday = new Array(habits.length).fill(false);
-          setTodayHabits(newToday);
-          setDatesData((prev) => ({ ...prev, [todayStr]: newToday }));
+            if (data && !error) {
+              const dbDates: { [dateStr: string]: boolean[] } = {};
+              data.forEach((row) => {
+                dbDates[row.date_str] = row.completed_habits;
+              });
+
+              if (!dbDates[todayStr]) {
+                dbDates[todayStr] = new Array(habits.length).fill(false);
+              }
+
+              setDatesData(dbDates);
+              setTodayHabits(dbDates[todayStr]);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error('Error fetching habits from Supabase', e);
         }
-      } catch (e) {
-        console.error('Error parsing habits data', e);
       }
-    } else {
-      const initialToday = new Array(habits.length).fill(false);
-      setTodayHabits(initialToday);
-      setDatesData({ [todayStr]: initialToday });
-    }
-  }, [todayStr]);
 
-  // Save to LocalStorage and recalculate streak whenever datesData changes
+      // Fallback/Guest LocalStorage load
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as StoredData;
+          const dates = parsed.dates || {};
+          setDatesData(dates);
+
+          if (dates[todayStr]) {
+            setTodayHabits(dates[todayStr]);
+          } else {
+            const newToday = new Array(habits.length).fill(false);
+            setTodayHabits(newToday);
+            setDatesData((prev) => ({ ...prev, [todayStr]: newToday }));
+          }
+        } catch (e) {
+          console.error('Error parsing habits data', e);
+        }
+      } else {
+        const initialToday = new Array(habits.length).fill(false);
+        setTodayHabits(initialToday);
+        setDatesData({ [todayStr]: initialToday });
+      }
+    };
+
+    fetchAndLoadHabits();
+  }, [todayStr, user, isMock]);
+
+  // Save to LocalStorage/Supabase and recalculate streak whenever datesData changes
   useEffect(() => {
     if (Object.keys(datesData).length === 0) return;
     
-    // Save
+    // Save to LocalStorage
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ dates: datesData }));
+
+    // Save to Supabase (if logged in)
+    const saveToSupabase = async () => {
+      if (!isMock && user) {
+        try {
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          const todayData = datesData[todayStr];
+          if (authUser && todayData) {
+            await supabase.from('habits').upsert({
+              user_id: authUser.id,
+              date_str: todayStr,
+              completed_habits: todayData,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id, date_str' });
+          }
+        } catch (e) {
+          console.error('Error syncing habits with Supabase', e);
+        }
+      }
+    };
+    saveToSupabase();
 
     // Dynamic Streak Calculation
     let currentStreak = 0;
@@ -152,7 +209,7 @@ export default function HabitTracker({ onNavigateHome, onNavigateApp }: HabitTra
     }
     
     setStreak(currentStreak);
-  }, [datesData, todayStr]);
+  }, [datesData, todayStr, user, isMock]);
 
   const toggleHabit = (idx: number) => {
     const updated = [...todayHabits];

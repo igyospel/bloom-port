@@ -1,29 +1,85 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabaseClient';
 
 interface CreditContextType {
   credits: number;
-  addCredits: (amount: number) => void;
-  consumeCredits: (amount: number) => void;
+  addCredits: (amount: number) => Promise<void>;
+  consumeCredits: (amount: number) => Promise<void>;
 }
 
 const CreditContext = createContext<CreditContextType | undefined>(undefined);
 
 export function CreditProvider({ children }: { children: React.ReactNode }) {
-  const [credits, setCredits] = useState<number>(() => {
-    const saved = localStorage.getItem('bloomport-credits');
-    return saved !== null ? parseInt(saved, 10) : 10000;
-  });
+  const { user, isMock } = useAuth();
+  const [credits, setCredits] = useState<number>(10000);
 
+  // 1. Initial load from LocalStorage (for guests or fallback)
   useEffect(() => {
-    localStorage.setItem('bloomport-credits', credits.toString());
-  }, [credits]);
+    const saved = localStorage.getItem('bloomport-credits');
+    if (saved !== null) {
+      setCredits(parseInt(saved, 10));
+    }
+  }, []);
 
-  const addCredits = (amount: number) => {
-    setCredits((prev) => prev + amount);
+  // 2. Fetch credits from Supabase if user is logged in
+  useEffect(() => {
+    if (isMock || !user) {
+      // If user logged out or is guest, restore from localStorage
+      const saved = localStorage.getItem('bloomport-credits');
+      setCredits(saved !== null ? parseInt(saved, 10) : 10000);
+      return;
+    }
+
+    const fetchDBCredits = async () => {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('credits')
+          .eq('id', authUser.id)
+          .single();
+
+        if (profile) {
+          setCredits(profile.credits);
+          localStorage.setItem('bloomport-credits', profile.credits.toString());
+        }
+      }
+    };
+
+    fetchDBCredits();
+  }, [user, isMock]);
+
+  const addCredits = async (amount: number) => {
+    const nextCredits = credits + amount;
+    setCredits(nextCredits);
+    localStorage.setItem('bloomport-credits', nextCredits.toString());
+
+    if (!isMock && user) {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        await supabase
+          .from('profiles')
+          .update({ credits: nextCredits })
+          .eq('id', authUser.id);
+      }
+    }
   };
 
-  const consumeCredits = (amount: number) => {
-    setCredits((prev) => Math.max(0, prev - amount));
+  const consumeCredits = async (amount: number) => {
+    const nextCredits = Math.max(0, credits - amount);
+    setCredits(nextCredits);
+    localStorage.setItem('bloomport-credits', nextCredits.toString());
+
+    if (!isMock && user) {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        await supabase
+          .from('profiles')
+          .update({ credits: nextCredits })
+          .eq('id', authUser.id);
+      }
+    }
   };
 
   return (

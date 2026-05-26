@@ -63,7 +63,7 @@ const ToolFallback = () => (
 function MainAppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string>('');
-  const { user, login, signup } = useAuth();
+  const { user, login, signup, loginWithGoogle } = useAuth();
 
   // Custom Event-based routing
   useEffect(() => {
@@ -77,30 +77,43 @@ function MainAppContent() {
     return () => window.removeEventListener('bloomport-navigate', handleNavigation);
   }, []);
 
-  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
     if (email) {
-      login(email);
-      setCurrentView('app');
+      const { error } = await login(email, password);
+      if (error) {
+        alert(error.message || 'Login failed. Please check your credentials.');
+      } else {
+        setCurrentView('app');
+      }
     }
   };
 
-  const handleSignUp = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
     const name = formData.get('name') as string;
+    const password = formData.get('password') as string;
     if (email && name) {
-      signup(email, name);
-      setCurrentView('app');
+      const { error } = await signup(email, name, password);
+      if (error) {
+        alert(error.message || 'Registration failed. Please try again.');
+      } else {
+        alert('Account created successfully! Please sign in if email confirmation is required.');
+        setCurrentView('app');
+      }
     }
   };
 
-  const handleGoogleSignIn = () => {
-    login('google.user@gmail.com');
-    setCurrentView('app');
+  const handleGoogleSignIn = async () => {
+    const { error } = await loginWithGoogle();
+    if (error) {
+      alert(error.message || 'Google Sign-In failed.');
+    }
   };
 
   const navigateToApp = () => {
@@ -222,14 +235,14 @@ function MainAppContent() {
 
 export default function App() {
   return (
-    <CreditProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <CreditProvider>
         <SolanaWalletProvider>
           <SessionProvider>
             <MainAppContent />
           </SessionProvider>
         </SolanaWalletProvider>
-      </AuthProvider>
-    </CreditProvider>
+      </CreditProvider>
+    </AuthProvider>
   );
 }
