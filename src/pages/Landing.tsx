@@ -25,8 +25,8 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
   return (
     <div className="font-sans text-white bg-black">
       <SEO 
-        title="Bloomport — Free AI Service & Free LLM Chat (No Credit Card)" 
-        description="Bloomport is a 100% free AI service and developer LLM API. Access unlimited free AI chat, mindful focus sessions, and API keys with no credit card required."
+        title="Bloomport — Free Mindful AI for Focus & Mental Clarity" 
+        description="Declutter your mind and find focus with Bloomport — a free AI tool for mindful productivity, journaling, and calm. Try it now, no signup needed."
         path="/"
       />
       <section className="relative min-h-[100svh] flex flex-col overflow-hidden bg-black">
@@ -142,8 +142,8 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
             <div className="w-full max-w-2xl flex flex-col text-left items-start justify-center">
               {/* Massive Typography Headline */}
               <h1 className="text-[36px] sm:text-[48px] lg:text-[50px] xl:text-[56px] font-sans font-bold tracking-tight text-white mb-6 leading-[1.1] flex flex-col items-start">
-                <span>Build, deploy and scale</span>
-                <span className="text-white/60">AI agents with</span>
+                <span>Mindful Productivity AI —</span>
+                <span className="text-white/60">Find Focus,</span>
                 <div className="w-full mt-2 min-h-[90px] sm:min-h-[110px] lg:min-h-[130px] flex items-center">
                   <ParticleText />
                 </div>
@@ -151,7 +151,7 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
 
               {/* Description */}
               <p className="text-sm sm:text-base text-white/55 mb-8 max-w-md leading-relaxed font-sans font-normal">
-                The fastest way to build, deploy and scale autonomous AI agents across GPUs, CPUs and specialized accelerators.
+                Bloomport is your free AI companion for mindful productivity. Journal with AI, run focus sessions, and calm your mind — completely free, no signup needed.
               </p>
 
               {/* Action Buttons */}
@@ -160,20 +160,33 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                   onClick={onNavigate} 
                   className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group shadow-[0_8px_30px_rgb(255,255,255,0.15)]"
                 >
-                  <span>Start Building</span>
+                  <span>Try Bloomport Free</span>
                   <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
                 </button>
                 <button 
-                  onClick={() => { onNavigateDocs(); }}
+                  onClick={() => { window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'blog' })); }}
                   className="w-full sm:w-auto px-7 py-3.5 rounded-full border border-white/10 bg-white/[0.02] text-white hover:bg-white/[0.06] hover:border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group hover:shadow-[0_0_20px_rgba(255,255,255,0.04)]"
                 >
-                  <span>View Documentation</span>
+                  <span>Read Our Blog</span>
                   <ArrowRight className="w-4 h-4 opacity-50 transform group-hover:translate-x-1 transition-transform duration-200" />
                 </button>
               </div>
             </div>
           </div>
       </section>
+
+      {/* SEO: Crawlable homepage content block */}
+      <div className="sr-only" aria-hidden="false">
+        <h2>Free AI Mindfulness and Productivity Platform</h2>
+        <p>Bloomport is the only free AI tool that combines mindful productivity with conversational AI. Whether you struggle with overthinking, anxiety, or simply need help finding focus, Bloomport's AI journaling and focus sessions guide you to mental clarity — completely free.</p>
+        <h3>AI Journaling for Mental Clarity</h3>
+        <p>Our AI journaling feature generates thoughtful prompts and helps you process your thoughts with calm, intelligent guidance. Research shows that regular journaling reduces cortisol levels and improves mental clarity by up to 23%.</p>
+        <h3>Free Focus Sessions Online</h3>
+        <p>Bloomport's focus timer uses the Pomodoro technique combined with AI-guided mindfulness breaks. Whether you're working from home, studying, or managing anxiety, our free focus sessions help you stay intentional and present.</p>
+        <h3>Mindful AI Chat — No Credit Card Required</h3>
+        <p>Talk to Bloomport's AI anytime you need to calm your mind. Unlike therapy or coaching apps that charge by the session, Bloomport's mindful AI chat is completely free and available 24/7. No signup needed to get started.</p>
+        <p>Join thousands of users in the USA, UK, Canada, and Australia who use Bloomport daily to find focus, reduce stress, and build intentional habits.</p>
+      </div>
 
       <TrustedByShowcase />
 
@@ -286,6 +299,9 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                         <li><a className="hover:text-white transition-colors" href="#">API</a></li>
                         <li><a className="hover:text-white transition-colors" href="#">Pricing</a></li>
                         <li><a className="hover:text-white transition-colors" href="#">Documentation</a></li>
+                        <li><a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'blog' })); }}>Blog</a></li>
+                        <li><a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'focustimer' })); }}>Focus Timer</a></li>
+                        <li><a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'journalprompts' })); }}>Journal Prompts</a></li>
                      </ul>
                   </div>
                   <div>
@@ -294,7 +310,7 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                         <li><a className="hover:text-white transition-colors" href="#">About Us</a></li>
                         <li><a className="hover:text-white transition-colors" href="#">Careers</a></li>
                         <li><a className="hover:text-white transition-colors" href="#">Community</a></li>
-                        <li><a className="hover:text-white transition-colors" href="#">Blog</a></li>
+                        <li><a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'blog' })); }}>Blog</a></li>
                      </ul>
                   </div>
                   <div>
