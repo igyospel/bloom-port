@@ -14,21 +14,30 @@ import {
   Check, 
   ExternalLink,
   ChevronRight,
-  Database
+  Database,
+  Menu,
+  X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Logo } from '../components/Logo';
+import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
+import { useAuth } from '../context/AuthContext';
 
 interface ErrorPageProps {
   onNavigateHome?: () => void;
   onNavigateDashboard?: () => void;
   onNavigateDocs?: () => void;
+  onNavigateApi?: () => void;
 }
 
 export default function ErrorPage({
   onNavigateHome = () => {},
   onNavigateDashboard = () => {},
-  onNavigateDocs = () => {}
+  onNavigateDocs = () => {},
+  onNavigateApi = () => {}
 }: ErrorPageProps) {
+  const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [diagnosticCopied, setDiagnosticCopied] = useState(false);
@@ -266,36 +275,69 @@ export default function ErrorPage({
       />
 
       {/* Top Navbar */}
-      <header className="w-full z-50 flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-white shadow-sm shrink-0">
-        {/* MindStudio Logo */}
-        <div className="flex items-center gap-2.5 cursor-pointer" onClick={onNavigateHome}>
-          <div className="relative w-5 h-5 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border border-white/20 bg-transparent animate-ping" />
-            <div className="w-2 h-2 rounded-full bg-white" />
-          </div>
-          <span className="text-xs font-semibold tracking-[0.25em] uppercase font-mono text-white">MindStudio</span>
+      <header className="w-full z-50 flex items-center justify-between px-6 py-3.5 border-b border-white/[0.08] bg-black/40 backdrop-blur-md text-white shadow-sm shrink-0">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigateHome}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(true); }}
+            className="md:hidden p-2 -ml-1 text-white/50 hover:text-white cursor-pointer"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <Logo className="h-5 w-auto" variant="dark" />
         </div>
         
-        {/* Center Nav */}
-        <nav className="hidden md:flex items-center space-x-8 text-[12px] font-medium tracking-wide text-white/50">
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => e.preventDefault()}>Product</a>
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => e.preventDefault()}>Solutions</a>
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => e.preventDefault()}>Pricing</a>
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
-          <a className="hover:text-white transition-colors" href="#" onClick={(e) => e.preventDefault()}>Resources</a>
+        <nav className="hidden md:flex items-center space-x-8 text-[13px] font-medium font-sans">
+          <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateHome(); }}>Home</a>
+          <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDashboard(); }}>Models</a>
+          <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApi(); }}>API</a>
+          <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
         </nav>
 
-        {/* Right Go Home */}
-        <div>
-          <button
-            onClick={onNavigateHome}
-            className="flex items-center gap-2 px-4 py-1.5 border border-white/10 hover:border-white/25 rounded-full text-xs font-medium text-white/80 hover:text-white bg-transparent hover:bg-white/[0.03] transition-all cursor-pointer group"
-          >
-            <span>Go Home</span>
-            <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-          </button>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <UnifiedProfileControl />
+          ) : (
+            <>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signin' }))}
+                className="text-[13px] font-semibold text-white/60 hover:text-white transition-colors cursor-pointer px-1 py-1"
+              >
+                Log In
+              </button>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signup' }))}
+                className="text-[13px] font-semibold bg-white text-black hover:bg-white/90 transition-all cursor-pointer px-4 py-2 rounded-full font-sans"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </header>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] md:hidden" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="absolute top-0 left-0 h-full w-[280px] bg-[#0a0a0a] border-r border-white/10 p-5 flex flex-col justify-between" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Logo className="h-5 w-auto" variant="dark" />
+                <button onClick={() => setMobileMenuOpen(false)} className="text-white/50 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <nav className="flex flex-col space-y-4 font-medium text-sm">
+                <a href="#" className="text-white/60 hover:text-white" onClick={(e) => { e.preventDefault(); onNavigateHome(); setMobileMenuOpen(false); }}>Home</a>
+                <a href="#" className="text-white/60 hover:text-white" onClick={(e) => { e.preventDefault(); onNavigateDashboard(); setMobileMenuOpen(false); }}>AI Chat</a>
+                <a href="#" className="text-white/60 hover:text-white" onClick={(e) => { e.preventDefault(); onNavigateApi(); setMobileMenuOpen(false); }}>Developer API</a>
+                <a href="#" className="text-white/60 hover:text-white" onClick={(e) => { e.preventDefault(); onNavigateDocs(); setMobileMenuOpen(false); }}>Documentation</a>
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Grid Workspace */}
       <div className="flex-1 max-w-7xl w-full mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-8 items-stretch relative z-10">
