@@ -211,13 +211,19 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
     if (!email || !name) return;
     setLoading(true);
     setError('');
-    const result = onSendOtp ? await onSendOtp(email, name) : { error: null };
-    setLoading(false);
-    if (result.error) {
-      setError(result.error.message || 'Failed to send code. Please try again.');
-    } else {
-      setStep('otp');
-      setResendCooldown(60);
+    try {
+      const result = onSendOtp ? await onSendOtp(email, name) : { error: null };
+      if (result.error) {
+        setError(result.error.message || 'Failed to send code. Please try again.');
+      } else {
+        setStep('otp');
+        setResendCooldown(60);
+      }
+    } catch (err: any) {
+      console.error('handleSendOtp error:', err);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -225,13 +231,20 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
     if (otp.length !== 6 || loading) return;
     setLoading(true);
     setError('');
-    const result = onVerifyOtp ? await onVerifyOtp(email, otp, name) : { error: null };
-    setLoading(false);
-    if (result.error) {
-      setError(result.error.message || 'Invalid code. Please try again.');
+    try {
+      const result = onVerifyOtp ? await onVerifyOtp(email, otp, name) : { error: null };
+      if (result.error) {
+        setError(result.error.message || 'Invalid code. Please try again.');
+        setOtp('');
+      } else {
+        onSuccess?.();
+      }
+    } catch (err: any) {
+      console.error('handleVerify error:', err);
+      setError(err.message || 'An unexpected verification error occurred.');
       setOtp('');
-    } else {
-      onSuccess?.();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -240,12 +253,18 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
     setLoading(true);
     setError('');
     setOtp('');
-    const result = onSendOtp ? await onSendOtp(email, name) : { error: null };
-    setLoading(false);
-    if (result.error) {
-      setError(result.error.message || 'Failed to resend code.');
-    } else {
-      setResendCooldown(60);
+    try {
+      const result = onSendOtp ? await onSendOtp(email, name) : { error: null };
+      if (result.error) {
+        setError(result.error.message || 'Failed to resend code.');
+      } else {
+        setResendCooldown(60);
+      }
+    } catch (err: any) {
+      console.error('handleResend error:', err);
+      setError(err.message || 'Failed to resend code.');
+    } finally {
+      setLoading(false);
     }
   };
 

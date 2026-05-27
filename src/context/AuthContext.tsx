@@ -124,16 +124,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyLoginOtp = async (email: string, token: string) => {
     if (!isConfigured) return mockVerifyOtp(email, token);
 
-    const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'login' });
-    if (error || !data) return { error };
+    try {
+      const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'login' });
+      if (error || !data) return { error: error || new Error('Invalid verification response') };
 
-    // Exchange hashed_token for a real Supabase session
-    const { error: sessionError } = await supabase.auth.verifyOtp({
-      token_hash: data.hashed_token,
-      type: 'magiclink',
-    });
+      // Exchange hashed_token for a real Supabase session
+      const { error: sessionError } = await supabase.auth.verifyOtp({
+        token_hash: data.hashed_token,
+        type: 'magiclink',
+      });
 
-    return { error: sessionError };
+      return { error: sessionError };
+    } catch (err: any) {
+      console.error('verifyLoginOtp error:', err);
+      return { error: err };
+    }
   };
 
   // ── OTP SIGNUP: Step 1 ────────────────────────────────────────────────────
@@ -148,15 +153,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifySignupOtp = async (email: string, token: string, name: string) => {
     if (!isConfigured) return mockVerifyOtp(email, token, name);
 
-    const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'signup', name });
-    if (error || !data) return { error };
+    try {
+      const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'signup', name });
+      if (error || !data) return { error: error || new Error('Invalid verification response') };
 
-    const { error: sessionError } = await supabase.auth.verifyOtp({
-      token_hash: data.hashed_token,
-      type: 'magiclink',
-    });
+      const { error: sessionError } = await supabase.auth.verifyOtp({
+        token_hash: data.hashed_token,
+        type: 'magiclink',
+      });
 
-    return { error: sessionError };
+      return { error: sessionError };
+    } catch (err: any) {
+      console.error('verifySignupOtp error:', err);
+      return { error: err };
+    }
   };
 
   // ── GOOGLE SIGN-IN ────────────────────────────────────────────────────────
