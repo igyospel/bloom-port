@@ -66,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   let authUserId: string | null = null;
-  const existingUser = users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+  const existingUser = (users as any[]).find((u) => u.email?.toLowerCase() === email.toLowerCase());
 
   if (existingUser) {
     authUserId = existingUser.id;
