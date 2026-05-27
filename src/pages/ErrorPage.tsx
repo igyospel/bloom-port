@@ -343,7 +343,7 @@ export default function ErrorPage({
       <div className="flex-1 max-w-7xl w-full mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-8 items-stretch relative z-10">
         
         {/* ================= LEFT SIDEBAR ================= */}
-        <aside className="space-y-6 flex flex-col justify-start">
+        <aside className="space-y-6 flex flex-col justify-start order-2 lg:order-1">
           {/* Card: System Status */}
           <div className="p-5 rounded-2xl border border-white/[0.08] bg-[#0A0A0A] space-y-4 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between">
@@ -405,7 +405,7 @@ export default function ErrorPage({
         </aside>
 
         {/* ================= CENTER VISUALIZATION & MESSAGE ================= */}
-        <section className="flex flex-col items-center justify-between text-center relative py-6">
+        <section className="flex flex-col items-center justify-between text-center relative py-6 order-1 lg:order-2">
           {/* Holographic 404 Canvas rendering */}
           <div className="relative w-full h-[280px] shrink-0">
             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl" />
@@ -471,7 +471,7 @@ export default function ErrorPage({
         </section>
 
         {/* ================= RIGHT SIDEBAR ================= */}
-        <aside className="space-y-6 flex flex-col justify-start">
+        <aside className="space-y-6 flex flex-col justify-start order-3 lg:order-3">
           {/* Card: Error Details */}
           <div className="p-5 rounded-2xl border border-white/[0.08] bg-[#0A0A0A] space-y-4 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
             <span className="text-[10px] uppercase font-mono tracking-widest text-white/35 block">Error Details</span>
