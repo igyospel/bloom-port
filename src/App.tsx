@@ -67,7 +67,7 @@ const ToolFallback = () => (
 function MainAppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string>('');
-  const { user, login, signup, loginWithGoogle } = useAuth();
+  const { user, sendLoginOtp, verifyLoginOtp, sendSignupOtp, verifySignupOtp, loginWithGoogle } = useAuth();
 
   // Synchronize view state with window pathname on load & popstate (back/forward)
   useEffect(() => {
@@ -131,38 +131,6 @@ function MainAppContent() {
     return () => window.removeEventListener('bloomport-navigate', handleNavigation);
   }, []);
 
-  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    if (email) {
-      const { error } = await login(email, password);
-      if (error) {
-        alert(error.message || 'Login failed. Please check your credentials.');
-      } else {
-        setCurrentView('app');
-      }
-    }
-  };
-
-  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = formData.get('email') as string;
-    const name = formData.get('name') as string;
-    const password = formData.get('password') as string;
-    if (email && name) {
-      const { error } = await signup(email, name, password);
-      if (error) {
-        alert(error.message || 'Registration failed. Please try again.');
-      } else {
-        alert('Account created successfully! Please sign in if email confirmation is required.');
-        setCurrentView('app');
-      }
-    }
-  };
-
   const handleGoogleSignIn = async () => {
     const { error } = await loginWithGoogle();
     if (error) {
@@ -225,20 +193,23 @@ function MainAppContent() {
       {currentView === 'signin' && (
         <SignInPage
           testimonials={sampleTestimonials}
-          onSignIn={handleSignIn}
+          onSendOtp={sendLoginOtp}
+          onVerifyOtp={verifyLoginOtp}
           onGoogleSignIn={handleGoogleSignIn}
-          onResetPassword={() => alert('Password reset link sent to email.')}
           onCreateAccount={() => setCurrentView('signup')}
           onBack={() => setCurrentView('landing')}
+          onSuccess={() => setCurrentView('app')}
         />
       )}
       {currentView === 'signup' && (
         <SignUpPage
           testimonials={sampleTestimonials}
-          onSignUp={handleSignUp}
+          onSendOtp={sendSignupOtp}
+          onVerifyOtp={verifySignupOtp}
           onGoogleSignUp={handleGoogleSignIn}
           onSignIn={() => setCurrentView('signin')}
           onBack={() => setCurrentView('landing')}
+          onSuccess={() => setCurrentView('app')}
         />
       )}
 

@@ -10,8 +10,14 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password?: string) => Promise<{ error: any }>;
-  signup: (email: string, name: string, password?: string) => Promise<{ error: any }>;
+  /** Step 1 for OTP login: send OTP to email */
+  sendLoginOtp: (email: string) => Promise<{ error: any }>;
+  /** Step 2 for OTP login: verify the 6-digit code */
+  verifyLoginOtp: (email: string, token: string) => Promise<{ error: any }>;
+  /** Step 1 for OTP signup: send OTP to email with name metadata */
+  sendSignupOtp: (email: string, name: string) => Promise<{ error: any }>;
+  /** Step 2 for OTP signup: verify the 6-digit code */
+  verifySignupOtp: (email: string, token: string, name: string) => Promise<{ error: any }>;
   loginWithGoogle: () => Promise<{ error: any }>;
   logout: () => Promise<void>;
   updateUserPfp: (pfpUrl: string) => Promise<void>;
@@ -22,8 +28,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Check if credentials are placeholders
-const isConfigured = 
-  import.meta.env.VITE_SUPABASE_URL && 
+const isConfigured =
+  import.meta.env.VITE_SUPABASE_URL &&
   import.meta.env.VITE_SUPABASE_ANON_KEY &&
   !import.meta.env.VITE_SUPABASE_URL.includes('your-project-id');
 
@@ -35,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem('bloomport-user');
     if (!saved) return null;
     const parsed = JSON.parse(saved);
-    // Restore local-uploaded avatar (stored separately because data URLs are too large for bloomport-user)
+    // Restore local-uploaded avatar (stored separately because data URLs are too large)
     const localPfp = localStorage.getItem('bp_settings_pfp');
     if (localPfp) parsed.avatarUrl = localPfp;
     return parsed;
@@ -51,11 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isConfigured) return;
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          // Fetch additional profile data
           const { data: profile } = await supabase
             .from('profiles')
             .select('name, avatar_url')
@@ -64,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           setUser({
             email: session.user.email || '',
-            name: profile?.name || session.user.email?.split('@')[0] || 'User',
+            name: profile?.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
             avatarUrl: profile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80',
           });
         } else {
@@ -73,14 +77,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => { subscription.unsubscribe(); };
   }, []);
 
-  const login = async (email: string, password?: string) => {
+  // ── OTP LOGIN: Step 1 — send OTP ──
+  const sendLoginOtp = async (email: string) => {
     if (!isConfigured) {
-      // Mock Login
+      // Mock: pretend we sent it
+      return { error: null };
+    }
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false }, // login only, don't auto-register
+      });
+      return { error };
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
+  // ── OTP LOGIN: Step 2 — verify code ──
+  const verifyLoginOtp = async (email: string, token: string) => {
+    if (!isConfigured) {
+      // Mock login
       const prefix = email.split('@')[0];
       const name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
       const avatarUrl = `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80`;
@@ -89,11 +109,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('bloomport-user', JSON.stringify(newUser));
       return { error: null };
     }
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+      return { error };
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
+  // ── OTP SIGNUP: Step 1 — send OTP ──
+  const sendSignupOtp = async (email: string, _name: string) => {
+    if (!isConfigured) {
+      return { error: null };
+    }
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
         email,
-        password: password || '',
+        options: { shouldCreateUser: true, data: { name: _name } },
       });
       return { error };
     } catch (e) {
@@ -101,26 +133,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signup = async (email: string, name: string, password?: string) => {
+  // ── OTP SIGNUP: Step 2 — verify code ──
+  const verifySignupOtp = async (email: string, token: string, name: string) => {
     if (!isConfigured) {
-      // Mock Signup
+      // Mock signup
       const avatarUrl = `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&q=80`;
       const newUser = { email, name, avatarUrl };
       setUser(newUser);
       localStorage.setItem('bloomport-user', JSON.stringify(newUser));
       return { error: null };
     }
-
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password: password || '',
-        options: {
-          data: {
-            name,
-          },
-        },
-      });
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+      if (!error) {
+        // Update profile name after verify
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+          await supabase.from('profiles').upsert({ id: authUser.id, name, email });
+        }
+      }
       return { error };
     } catch (e) {
       return { error: e };
@@ -129,16 +160,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithGoogle = async () => {
     if (!isConfigured) {
-      // Mock Google Login
-      return login('google.user@gmail.com');
+      const prefix = 'google.user@gmail.com'.split('@')[0];
+      const name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+      const avatarUrl = `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80`;
+      const newUser = { email: 'google.user@gmail.com', name, avatarUrl };
+      setUser(newUser);
+      localStorage.setItem('bloomport-user', JSON.stringify(newUser));
+      return { error: null };
     }
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-        },
+        options: { redirectTo: window.location.origin },
       });
       return { error };
     } catch (e) {
@@ -158,7 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserPfp = async (pfpUrl: string) => {
     if (!user) return;
-    
+
     const updatedUser = { ...user, avatarUrl: pfpUrl };
     setUser(updatedUser);
 
@@ -179,7 +213,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (name: string, pfpUrl?: string) => {
     if (!user) return { error: new Error('User not logged in') };
 
-    // Always update local state — including data URLs from local file uploads
     const updatedUser = {
       ...user,
       name,
@@ -188,10 +221,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(updatedUser);
 
     if (!isConfigured) {
-      // For mock mode: persist user but skip data URLs (too large for JSON localStorage)
       const userToStore = { ...updatedUser };
       if (userToStore.avatarUrl?.startsWith('data:')) {
-        // Keep existing stored avatarUrl, photo already saved under bp_settings_pfp
         const existing = localStorage.getItem('bloomport-user');
         const prev = existing ? JSON.parse(existing) : {};
         userToStore.avatarUrl = prev.avatarUrl || '';
@@ -204,16 +235,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
         const updates: any = { name };
-        // Only write to DB if it's a real URL (not a data URL)
         if (pfpUrl && !pfpUrl.startsWith('data:')) {
           updates.avatar_url = pfpUrl;
         }
-
         const { error } = await supabase
           .from('profiles')
           .update(updates)
           .eq('id', authUser.id);
-
         if (error) throw error;
       }
       return { error: null };
@@ -227,8 +255,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
-        login,
-        signup,
+        sendLoginOtp,
+        verifyLoginOtp,
+        sendSignupOtp,
+        verifySignupOtp,
         loginWithGoogle,
         logout,
         updateUserPfp,
