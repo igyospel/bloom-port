@@ -237,9 +237,7 @@ const Example = ({
     return (
       <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-y-auto">
         <div className="flex flex-col items-center justify-center flex-1 w-full px-6 py-12 max-w-2xl mx-auto fade-in-up">
-          <div className="w-12 h-12 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center mb-6 shadow-inner">
-            <Sparkles className="w-5 h-5 text-white/80" />
-          </div>
+
           <h1 className="text-[28px] md:text-[32px] font-bold text-white mb-2 tracking-tight text-center font-sans">
             How can I help you today?
           </h1>
