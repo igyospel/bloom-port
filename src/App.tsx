@@ -6,6 +6,7 @@ import DocsPage from './pages/DocsPage';
 import BlogIndex from './pages/BlogIndex';
 import BlogPost from './pages/BlogPost';
 import About from './pages/About';
+import ErrorPage from './pages/ErrorPage';
 import { SolanaWalletProvider } from './components/SolanaWalletProvider';
 import { SessionProvider } from './context/SessionContext';
 import { CreditProvider } from './context/CreditContext';
@@ -33,7 +34,8 @@ type ViewType =
   | 'journalprompts'
   | 'stressquiz'
   | 'habittracker'
-  | 'about';
+  | 'about'
+  | 'error';
 
 const sampleTestimonials = [
   {
@@ -66,6 +68,56 @@ function MainAppContent() {
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string>('');
   const { user, login, signup, loginWithGoogle } = useAuth();
+
+  // Synchronize view state with window pathname on load & popstate (back/forward)
+  useEffect(() => {
+    const syncViewWithLocation = () => {
+      const path = window.location.pathname.replace(/^\/|\/$/g, '');
+      if (path === 'about') {
+        setCurrentView('about');
+      } else if (path === 'api') {
+        setCurrentView('api');
+      } else if (path === 'docs') {
+        setCurrentView('docs');
+      } else if (path === 'app') {
+        setCurrentView('app');
+      } else if (path === 'focustimer') {
+        setCurrentView('focustimer');
+      } else if (path === 'journalprompts') {
+        setCurrentView('journalprompts');
+      } else if (path === 'stressquiz') {
+        setCurrentView('stressquiz');
+      } else if (path === 'habittracker') {
+        setCurrentView('habittracker');
+      } else if (path === 'blog') {
+        setCurrentView('blog');
+      } else if (path === 'signin') {
+        setCurrentView('signin');
+      } else if (path === 'signup') {
+        setCurrentView('signup');
+      } else if (path === '404' || path === 'error') {
+        setCurrentView('error');
+      } else if (path === '') {
+        setCurrentView('landing');
+      } else {
+        // Fallback for unmatched routes
+        setCurrentView('error');
+      }
+    };
+
+    syncViewWithLocation();
+    window.addEventListener('popstate', syncViewWithLocation);
+    return () => window.removeEventListener('popstate', syncViewWithLocation);
+  }, []);
+
+  // Update window URL path when currentView changes (pushState)
+  useEffect(() => {
+    const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
+    const targetPath = currentView === 'landing' ? '' : currentView;
+    if (currentPath !== targetPath && currentView !== 'blogpost') {
+      window.history.pushState(null, '', `/${targetPath}`);
+    }
+  }, [currentView]);
 
   // Custom Event-based routing
   useEffect(() => {
@@ -236,6 +288,13 @@ function MainAppContent() {
           onNavigateHome={() => setCurrentView('landing')}
           onNavigateApp={navigateToApp}
           onNavigateApi={() => setCurrentView('api')}
+          onNavigateDocs={() => setCurrentView('docs')}
+        />
+      )}
+      {currentView === 'error' && (
+        <ErrorPage
+          onNavigateHome={() => setCurrentView('landing')}
+          onNavigateDashboard={navigateToApp}
           onNavigateDocs={() => setCurrentView('docs')}
         />
       )}
