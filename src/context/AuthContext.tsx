@@ -10,13 +10,13 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  /** Step 1 for OTP login: send OTP to email */
+  /** Step 1: Send 6-digit OTP to email for login */
   sendLoginOtp: (email: string) => Promise<{ error: any }>;
-  /** Step 2 for OTP login: verify the 6-digit code */
+  /** Step 2: Verify OTP code for login */
   verifyLoginOtp: (email: string, token: string) => Promise<{ error: any }>;
-  /** Step 1 for OTP signup: send OTP to email with name metadata */
+  /** Step 1: Send 6-digit OTP to email for signup */
   sendSignupOtp: (email: string, name: string) => Promise<{ error: any }>;
-  /** Step 2 for OTP signup: verify the 6-digit code */
+  /** Step 2: Verify OTP code for signup */
   verifySignupOtp: (email: string, token: string, name: string) => Promise<{ error: any }>;
   loginWithGoogle: () => Promise<{ error: any }>;
   logout: () => Promise<void>;
@@ -27,21 +27,23 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Check if credentials are placeholders
+// Check if Supabase credentials are real (not placeholders)
 const isConfigured =
   import.meta.env.VITE_SUPABASE_URL &&
   import.meta.env.VITE_SUPABASE_ANON_KEY &&
   !import.meta.env.VITE_SUPABASE_URL.includes('your-project-id');
 
+// Default avatar
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80';
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
-  // ── MOCK SYSTEM FALLBACKS (If Supabase is not configured yet) ──
+  // ── MOCK SYSTEM (If Supabase is not configured) ──────────────────────────
   const loadMockUser = () => {
     const saved = localStorage.getItem('bloomport-user');
     if (!saved) return null;
     const parsed = JSON.parse(saved);
-    // Restore local-uploaded avatar (stored separately because data URLs are too large)
     const localPfp = localStorage.getItem('bp_settings_pfp');
     if (localPfp) parsed.avatarUrl = localPfp;
     return parsed;
@@ -53,12 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // ── REAL SUPABASE AUTH SYSTEM ──
+  // ── REAL SUPABASE AUTH LISTENER ──────────────────────────────────────────
   useEffect(() => {
     if (!isConfigured) return;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         if (session?.user) {
           const { data: profile } = await supabase
             .from('profiles')
@@ -66,10 +68,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('id', session.user.id)
             .single();
 
+          const localPfp = localStorage.getItem('bp_settings_pfp');
           setUser({
             email: session.user.email || '',
             name: profile?.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-            avatarUrl: profile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80',
+            avatarUrl: localPfp || profile?.avatar_url || DEFAULT_AVATAR,
           });
         } else {
           setUser(null);
@@ -80,95 +83,90 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => { subscription.unsubscribe(); };
   }, []);
 
-  // ── OTP LOGIN: Step 1 — send OTP ──
+  // ── HELPER: Call our Bloomport API routes ─────────────────────────────────
+  const callApi = async (path: string, body: object) => {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) return { data: null, error: new Error(data.error || 'Request failed') };
+    return { data, error: null };
+  };
+
+  // ── MOCK: Fake OTP flow for dev/demo mode ─────────────────────────────────
+  const mockSendOtp = async (_email: string) => {
+    // In mock mode pretend we sent it (code is always "123456" for testing)
+    return { error: null };
+  };
+
+  const mockVerifyOtp = async (email: string, code: string, name?: string) => {
+    // In mock mode accept any 6-digit code
+    if (code.length !== 6) return { error: new Error('Invalid code') };
+    const prefix = name || email.split('@')[0];
+    const userName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    const newUser = { email, name: userName, avatarUrl: DEFAULT_AVATAR };
+    setUser(newUser);
+    localStorage.setItem('bloomport-user', JSON.stringify(newUser));
+    return { error: null };
+  };
+
+  // ── OTP LOGIN: Step 1 ─────────────────────────────────────────────────────
   const sendLoginOtp = async (email: string) => {
-    if (!isConfigured) {
-      // Mock: pretend we sent it
-      return { error: null };
-    }
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: false }, // login only, don't auto-register
-      });
-      return { error };
-    } catch (e) {
-      return { error: e };
-    }
+    if (!isConfigured) return mockSendOtp(email);
+
+    const { error } = await callApi('/api/send-otp', { email, purpose: 'login' });
+    return { error };
   };
 
-  // ── OTP LOGIN: Step 2 — verify code ──
+  // ── OTP LOGIN: Step 2 ─────────────────────────────────────────────────────
   const verifyLoginOtp = async (email: string, token: string) => {
-    if (!isConfigured) {
-      // Mock login
-      const prefix = email.split('@')[0];
-      const name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-      const avatarUrl = `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80`;
-      const newUser = { email, name, avatarUrl };
-      setUser(newUser);
-      localStorage.setItem('bloomport-user', JSON.stringify(newUser));
-      return { error: null };
-    }
-    try {
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-      return { error };
-    } catch (e) {
-      return { error: e };
-    }
+    if (!isConfigured) return mockVerifyOtp(email, token);
+
+    const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'login' });
+    if (error || !data) return { error };
+
+    // Exchange hashed_token for a real Supabase session
+    const { error: sessionError } = await supabase.auth.verifyOtp({
+      token_hash: data.hashed_token,
+      type: 'magiclink',
+    });
+
+    return { error: sessionError };
   };
 
-  // ── OTP SIGNUP: Step 1 — send OTP ──
-  const sendSignupOtp = async (email: string, _name: string) => {
-    if (!isConfigured) {
-      return { error: null };
-    }
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true, data: { name: _name } },
-      });
-      return { error };
-    } catch (e) {
-      return { error: e };
-    }
+  // ── OTP SIGNUP: Step 1 ────────────────────────────────────────────────────
+  const sendSignupOtp = async (email: string, name: string) => {
+    if (!isConfigured) return mockSendOtp(email);
+
+    const { error } = await callApi('/api/send-otp', { email, name, purpose: 'signup' });
+    return { error };
   };
 
-  // ── OTP SIGNUP: Step 2 — verify code ──
+  // ── OTP SIGNUP: Step 2 ────────────────────────────────────────────────────
   const verifySignupOtp = async (email: string, token: string, name: string) => {
-    if (!isConfigured) {
-      // Mock signup
-      const avatarUrl = `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&q=80`;
-      const newUser = { email, name, avatarUrl };
-      setUser(newUser);
-      localStorage.setItem('bloomport-user', JSON.stringify(newUser));
-      return { error: null };
-    }
-    try {
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-      if (!error) {
-        // Update profile name after verify
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser) {
-          await supabase.from('profiles').upsert({ id: authUser.id, name, email });
-        }
-      }
-      return { error };
-    } catch (e) {
-      return { error: e };
-    }
+    if (!isConfigured) return mockVerifyOtp(email, token, name);
+
+    const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'signup', name });
+    if (error || !data) return { error };
+
+    const { error: sessionError } = await supabase.auth.verifyOtp({
+      token_hash: data.hashed_token,
+      type: 'magiclink',
+    });
+
+    return { error: sessionError };
   };
 
+  // ── GOOGLE SIGN-IN ────────────────────────────────────────────────────────
   const loginWithGoogle = async () => {
     if (!isConfigured) {
-      const prefix = 'google.user@gmail.com'.split('@')[0];
-      const name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-      const avatarUrl = `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80`;
-      const newUser = { email: 'google.user@gmail.com', name, avatarUrl };
+      const newUser = { email: 'google.user@gmail.com', name: 'Google User', avatarUrl: DEFAULT_AVATAR };
       setUser(newUser);
       localStorage.setItem('bloomport-user', JSON.stringify(newUser));
       return { error: null };
     }
-
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -180,6 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // ── LOGOUT ────────────────────────────────────────────────────────────────
   const logout = async () => {
     if (!isConfigured) {
       setUser(null);
@@ -190,26 +189,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  // ── UPDATE PFP ────────────────────────────────────────────────────────────
   const updateUserPfp = async (pfpUrl: string) => {
     if (!user) return;
-
     const updatedUser = { ...user, avatarUrl: pfpUrl };
     setUser(updatedUser);
-
     if (!isConfigured) {
       localStorage.setItem('bloomport-user', JSON.stringify(updatedUser));
       return;
     }
-
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (authUser) {
-      await supabase
-        .from('profiles')
-        .update({ avatar_url: pfpUrl })
-        .eq('id', authUser.id);
+      await supabase.from('profiles').update({ avatar_url: pfpUrl }).eq('id', authUser.id);
     }
   };
 
+  // ── UPDATE PROFILE ────────────────────────────────────────────────────────
   const updateProfile = async (name: string, pfpUrl?: string) => {
     if (!user) return { error: new Error('User not logged in') };
 
@@ -235,13 +230,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
         const updates: any = { name };
-        if (pfpUrl && !pfpUrl.startsWith('data:')) {
-          updates.avatar_url = pfpUrl;
-        }
-        const { error } = await supabase
-          .from('profiles')
-          .update(updates)
-          .eq('id', authUser.id);
+        if (pfpUrl && !pfpUrl.startsWith('data:')) updates.avatar_url = pfpUrl;
+        const { error } = await supabase.from('profiles').update(updates).eq('id', authUser.id);
         if (error) throw error;
       }
       return { error: null };
@@ -273,8 +263,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 }
