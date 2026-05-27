@@ -23,7 +23,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <div className="bg-black text-white font-body-md overflow-hidden h-screen flex flex-col">
+    <div className="bg-black text-white font-body-md overflow-hidden h-[100dvh] flex flex-col">
       <SEO 
         title="Bloomport Chat — Free AI Models & Free LLM Chat Online" 
         description="Run mindful conversational chat using multiple free AI models. Zero-cost AI journaling, deep work timers, and focus sessions with no credits required to start."
@@ -110,7 +110,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
       </div>
 
       {/* Main Content Area Grid */}
-      <div className="flex flex-1 overflow-hidden bg-black">
+      <div className="flex flex-1 min-h-0 overflow-hidden bg-black">
         <SessionSidebar />
 
         {/* Mobile Session Sidebar Drawer */}
@@ -129,7 +129,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
         </div>
 
         {/* Center Chat Viewport */}
-        <main className="flex-1 flex flex-col overflow-hidden border-r border-white/10 bg-black">
+        <main className="flex-1 flex flex-col min-h-0 overflow-hidden border-r border-white/10 bg-black">
           <Example 
             selectedModel={selectedModel}
             setSelectedModel={setSelectedModel}

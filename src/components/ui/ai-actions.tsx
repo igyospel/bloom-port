@@ -229,7 +229,7 @@ const Example = ({
   // ── EMPTY STATE — v0-style landing ──────────────────────────────────────────
   if (messages.length === 0) {
     return (
-      <div className="flex flex-col flex-1 w-full bg-black overflow-y-auto">
+      <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-y-auto">
         <div className="flex flex-col items-center justify-center flex-1 w-full px-6 py-12 max-w-2xl mx-auto fade-in-up">
           <div className="w-12 h-12 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center mb-6 shadow-inner">
             <Sparkles className="w-5 h-5 text-white/80" />
@@ -333,7 +333,7 @@ const Example = ({
 
   // ── CONVERSATION STATE ───────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-full w-full bg-black overflow-hidden">
+    <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-hidden">
       {/* Center Panel Header */}
       <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black text-white z-10">
         <div className="flex flex-col min-w-0">
