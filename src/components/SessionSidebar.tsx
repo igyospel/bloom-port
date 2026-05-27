@@ -94,13 +94,10 @@ export default function SessionSidebar({ inDrawer }: { inDrawer?: boolean }) {
         {/* New Session Button */}
         <button
           onClick={() => createSession()}
-          className="w-full py-2.5 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 flex items-center justify-between text-sm font-medium text-white/80 hover:text-white group cursor-pointer"
+          className="w-full py-2.5 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white group cursor-pointer"
         >
-          <div className="flex items-center gap-2">
-            <Plus className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
-            <span>New Session</span>
-          </div>
-          <Sparkles className="w-4 h-4 text-white/40 group-hover:text-white/80 transition-colors animate-pulse" />
+          <Plus className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
+          <span>New Session</span>
         </button>
 
         {/* Sessions Section Label & Controls */}
