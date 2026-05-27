@@ -307,7 +307,7 @@ export default function Landing({ onNavigate, onNavigateApi, onNavigateDocs }: {
                   <div>
                      <h4 className="font-semibold text-base sm:text-lg text-white mb-4 sm:mb-6 tracking-tight">Company</h4>
                      <ul className="space-y-3 sm:space-y-4 text-[13px] sm:text-[15px] text-white/70 font-medium">
-                        <li><a className="hover:text-white transition-colors" href="#">About Us</a></li>
+                        <li><a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'about' })); }}>About Us</a></li>
                         <li><a className="hover:text-white transition-colors" href="#">Careers</a></li>
                         <li><a className="hover:text-white transition-colors" href="#">Community</a></li>
                         <li><a className="hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'blog' })); }}>Blog</a></li>

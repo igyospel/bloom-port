@@ -5,6 +5,7 @@ import ApiPage from './pages/ApiPage';
 import DocsPage from './pages/DocsPage';
 import BlogIndex from './pages/BlogIndex';
 import BlogPost from './pages/BlogPost';
+import About from './pages/About';
 import { SolanaWalletProvider } from './components/SolanaWalletProvider';
 import { SessionProvider } from './context/SessionContext';
 import { CreditProvider } from './context/CreditContext';
@@ -31,7 +32,8 @@ type ViewType =
   | 'focustimer'
   | 'journalprompts'
   | 'stressquiz'
-  | 'habittracker';
+  | 'habittracker'
+  | 'about';
 
 const sampleTestimonials = [
   {
@@ -228,6 +230,14 @@ function MainAppContent() {
             onNavigateApp={navigateToApp}
           />
         </Suspense>
+      )}
+      {currentView === 'about' && (
+        <About
+          onNavigateHome={() => setCurrentView('landing')}
+          onNavigateApp={navigateToApp}
+          onNavigateApi={() => setCurrentView('api')}
+          onNavigateDocs={() => setCurrentView('docs')}
+        />
       )}
     </>
   );
