@@ -61,70 +61,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     console.log('Registering onAuthStateChange listener');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('onAuthStateChange triggered:', event, session?.user?.email);
-        try {
-          if (session?.user) {
-            let profileName = '';
-            let profileAvatar = '';
+        
+        // Defer all database calls/async operations inside onAuthStateChange 
+        // to prevent client-side deadlock in supabase-js (which blocks verifyOtp)
+        setTimeout(async () => {
+          try {
+            if (session?.user) {
+              let profileName = '';
+              let profileAvatar = '';
 
-            try {
-              const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('name, avatar_url')
-                .eq('id', session.user.id)
-                .single();
-
-              if (profileError || !profile) {
-                console.warn('onAuthStateChange: Profile not found for user. Creating a client-side fallback profile...', profileError);
-                profileName = session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
-                profileAvatar = session.user.user_metadata?.avatar_url || DEFAULT_AVATAR;
-
-                const { error: upsertError } = await supabase
+              try {
+                const { data: profile, error: profileError } = await supabase
                   .from('profiles')
-                  .upsert({
-                    id: session.user.id,
-                    name: profileName,
-                    avatar_url: profileAvatar,
-                    email: session.user.email?.toLowerCase() || null,
-                    credits: 10000,
-                  });
+                  .select('name, avatar_url')
+                  .eq('id', session.user.id)
+                  .single();
 
-                if (upsertError) {
-                  console.error('onAuthStateChange: Failed to upsert fallback profile:', upsertError);
+                if (profileError || !profile) {
+                  console.warn('onAuthStateChange: Profile not found for user. Creating a client-side fallback profile...', profileError);
+                  profileName = session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
+                  profileAvatar = session.user.user_metadata?.avatar_url || DEFAULT_AVATAR;
+
+                  const { error: upsertError } = await supabase
+                    .from('profiles')
+                    .upsert({
+                      id: session.user.id,
+                      name: profileName,
+                      avatar_url: profileAvatar,
+                      email: session.user.email?.toLowerCase() || null,
+                      credits: 10000,
+                    });
+
+                  if (upsertError) {
+                    console.error('onAuthStateChange: Failed to upsert fallback profile:', upsertError);
+                  } else {
+                    console.log('onAuthStateChange: Successfully created client-side fallback profile.');
+                  }
                 } else {
-                  console.log('onAuthStateChange: Successfully created client-side fallback profile.');
+                  profileName = profile.name;
+                  profileAvatar = profile.avatar_url;
                 }
-              } else {
-                profileName = profile.name;
-                profileAvatar = profile.avatar_url;
+              } catch (err) {
+                console.error('Error fetching/creating profile in auth state change:', err);
               }
-            } catch (err) {
-              console.error('Error fetching/creating profile in auth state change:', err);
-            }
 
-            const localPfp = localStorage.getItem('bp_settings_pfp');
-            setUser({
-              email: session.user.email || '',
-              name: profileName || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-              avatarUrl: localPfp || profileAvatar || DEFAULT_AVATAR,
-            });
-          } else {
-            setUser(null);
+              const localPfp = localStorage.getItem('bp_settings_pfp');
+              setUser({
+                email: session.user.email || '',
+                name: profileName || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                avatarUrl: localPfp || profileAvatar || DEFAULT_AVATAR,
+              });
+            } else {
+              setUser(null);
+            }
+          } catch (err) {
+            console.error('Fatal error in onAuthStateChange callback:', err);
+            // Fallback to minimal user object to prevent blackouts
+            if (session?.user) {
+              setUser({
+                email: session.user.email || '',
+                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                avatarUrl: DEFAULT_AVATAR,
+              });
+            } else {
+              setUser(null);
+            }
           }
-        } catch (err) {
-          console.error('Fatal error in onAuthStateChange callback:', err);
-          // Fallback to minimal user object to prevent blackouts
-          if (session?.user) {
-            setUser({
-              email: session.user.email || '',
-              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-              avatarUrl: DEFAULT_AVATAR,
-            });
-          } else {
-            setUser(null);
-          }
-        }
+        }, 0);
       }
     );
 
