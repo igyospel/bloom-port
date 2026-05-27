@@ -364,18 +364,46 @@ const Example = ({
   // ── EMPTY STATE — v0-style landing ──────────────────────────────────────────
   if (messages.length === 0) {
     return (
-      <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-y-auto">
-        <div className="flex flex-col items-center justify-center flex-1 w-full px-6 py-12 max-w-2xl mx-auto fade-in-up">
+      <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-hidden">
+        {/* Scrollable center content */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="flex flex-col items-center justify-center min-h-full w-full px-6 py-12 max-w-2xl mx-auto fade-in-up">
 
-          <h1 className="text-[28px] md:text-[32px] font-bold text-white mb-2 tracking-tight text-center font-sans">
-            How can I help you today?
-          </h1>
-          <p className="text-[13px] text-white/40 text-center max-w-md mb-8 leading-relaxed font-sans">
-            Ask me anything about AI infrastructure, LLMs, deployment, scaling, or best practices.
-          </p>
+            <h1 className="text-[28px] md:text-[32px] font-bold text-white mb-2 tracking-tight text-center font-sans">
+              How can I help you today?
+            </h1>
+            <p className="text-[13px] text-white/40 text-center max-w-md mb-8 leading-relaxed font-sans">
+              Ask me anything about AI infrastructure, LLMs, deployment, scaling, or best practices.
+            </p>
 
-          {/* Input card */}
-          <div className="w-full space-y-5">
+            {/* Quick-action pills */}
+            <div className="w-full flex flex-wrap items-center justify-center gap-2 mb-6">
+              {quickActions.map((a) => (
+                <ActionButton
+                  key={a.label}
+                  icon={a.icon}
+                  label={a.label}
+                  onClick={() => { sendMessage(a.label); }}
+                />
+              ))}
+            </div>
+
+            {/* In-feed Ad banner in empty state */}
+            <div className="w-full">
+              <AdBanner layout="in-feed" />
+            </div>
+
+            {configError && (
+              <p className="text-xs text-red-400 text-center max-w-md mx-auto mt-4">
+                {configError}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Fixed input at bottom */}
+        <div className="shrink-0 border-t border-white/10 bg-black/80 backdrop-blur-md px-6 py-4">
+          <div className="max-w-2xl mx-auto w-full">
             <div className="relative bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-md hover:border-white/15 focus-within:border-white/20 transition-all">
               {/* Hidden file input */}
               <input
@@ -483,29 +511,6 @@ const Example = ({
                 </div>
               </div>
             </div>
-
-            {/* Quick-action pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {quickActions.map((a) => (
-                <ActionButton
-                  key={a.label}
-                  icon={a.icon}
-                  label={a.label}
-                  onClick={() => { sendMessage(a.label); }}
-                />
-              ))}
-            </div>
-
-            {/* In-feed Ad banner in empty state */}
-            <div className="pt-4 w-full">
-              <AdBanner layout="in-feed" />
-            </div>
-
-            {configError && (
-              <p className="text-xs text-red-400 text-center max-w-md mx-auto">
-                {configError}
-              </p>
-            )}
           </div>
         </div>
       </div>

@@ -161,9 +161,6 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
             showSettings={showSettings}
             setShowSettings={setShowSettings}
           />
-          <div className="shrink-0 flex justify-center pb-3 px-4 bg-black">
-            <p className="text-[9px] font-semibold text-white/20 uppercase tracking-[0.2em]">Bloomport may produce inaccurate information.</p>
-          </div>
         </main>
 
         {/* Right Configuration sidebar */}
