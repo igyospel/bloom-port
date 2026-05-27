@@ -119,12 +119,18 @@ const Example = ({
   const [inputValue, setInputValue] = useState("")
   const [configError, setConfigError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
-  const chatEndRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({ minHeight: 52, maxHeight: 200 })
 
   // Auto scroll to bottom when message streaming
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollContainerRef.current
+    if (el) {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
   }, [messages.length, isGenerating])
 
   const sendMessage = async (text: string) => {
@@ -368,7 +374,7 @@ const Example = ({
       </div>
 
       {/* Messages viewport */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6">
         <div className="max-w-2xl mx-auto w-full space-y-6">
           {messages.map((message, idx) => {
             if (message.from === "user") {
@@ -447,7 +453,7 @@ const Example = ({
               )
             }
           })}
-          <div ref={chatEndRef} />
+
         </div>
       </div>
 
