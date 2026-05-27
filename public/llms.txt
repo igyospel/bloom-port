@@ -1,0 +1,32 @@
+# Bloomport
+
+> Bloomport is a free, high-performance LLM (Large Language Model) platform and autonomous agent console that provides everyone with unrestricted access to premium AI models without the subscription paywalls of services like ChatGPT Plus or Claude Pro.
+
+## Main Pages
+
+- [Bloomport Home](https://bloomport.fun/): The main landing page outlining the platform features, architecture, and live community stats.
+- [AI Chat Console](https://bloomport.fun/app): The core AI chat interface offering state-of-the-art inference, message feeds, and workspace settings.
+- [API Gateways](https://bloomport.fun/api): Developer dashboard to generate, manage, and monitor custom API keys and real-time load telemetry.
+- [Developer Documentation](https://bloomport.fun/docs): Complete reference guide for integrating Bloomport APIs and orchestrating autonomous agentic workflows.
+- [Blog & Updates](https://bloomport.fun/blog): The latest feature announcements, engineering write-ups, and developer guides.
+
+## Interactive AI Tools
+
+- [Focus Timer](https://bloomport.fun/focustimer): A clean, gamified Pomodoro timer with ambient audio and AI productivity tracking.
+- [AI Journal Prompts](https://bloomport.fun/journalprompts): A mindful journaling utility featuring dynamic, AI-generated prompts tailored to your mood.
+- [AI Stress Quiz](https://bloomport.fun/stressquiz): An interactive self-assessment that provides custom AI wellness recommendations.
+- [AI Habit Tracker](https://bloomport.fun/habittracker): A visual grid-based tracker to monitor and optimize daily habits with AI insights.
+
+## Key Features
+
+- **No Paywalls**: 100% free access to advanced LLMs.
+- **Developer-First Ecosystem**: Easily generate custom API keys, monitor usage telemetry, and inspect audit logs.
+- **Autonomous Agent Control**: Run autonomous background agents directly within your workspace.
+- **Solana Web3 Integration**: Seamless wallet-connected profiles and decentralization features.
+- **Ultra-Premium UI**: Fully responsive, dark-mode design optimized for developers and professional workflows.
+
+## Target Audience
+
+- **Students & Researchers**: Access cutting-edge language models for academic work completely free of charge.
+- **Developers & Builders**: Prototype apps, manage keys, and build autonomous agents using robust, low-latency API gateways.
+- **General Users**: A fast, premium, and privacy-oriented alternative to mainstream commercial chat tools.
