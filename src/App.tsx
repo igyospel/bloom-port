@@ -140,9 +140,9 @@ function MainAppContent() {
     }
   };
 
-  // Auto-redirect logged-in users away from sign-in/sign-up pages to the dashboard
+  // Auto-redirect logged-in users away from sign-in/sign-up/landing pages to the dashboard
   useEffect(() => {
-    if (user && (currentView === 'signin' || currentView === 'signup')) {
+    if (user && (currentView === 'signin' || currentView === 'signup' || currentView === 'landing')) {
       setCurrentView('app');
     }
   }, [user, currentView]);

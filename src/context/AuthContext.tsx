@@ -75,14 +75,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .eq('id', session.user.id)
                 .single();
 
-              if (profileError) {
-                console.warn('onAuthStateChange profile fetch error:', profileError);
-              } else if (profile) {
+              if (profileError || !profile) {
+                console.warn('onAuthStateChange: Profile not found for user. Creating a client-side fallback profile...', profileError);
+                profileName = session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
+                profileAvatar = session.user.user_metadata?.avatar_url || DEFAULT_AVATAR;
+
+                const { error: upsertError } = await supabase
+                  .from('profiles')
+                  .upsert({
+                    id: session.user.id,
+                    name: profileName,
+                    avatar_url: profileAvatar,
+                    email: session.user.email?.toLowerCase() || null,
+                    credits: 10000,
+                  });
+
+                if (upsertError) {
+                  console.error('onAuthStateChange: Failed to upsert fallback profile:', upsertError);
+                } else {
+                  console.log('onAuthStateChange: Successfully created client-side fallback profile.');
+                }
+              } else {
                 profileName = profile.name;
                 profileAvatar = profile.avatar_url;
               }
             } catch (err) {
-              console.error('Error fetching profile in auth state change:', err);
+              console.error('Error fetching/creating profile in auth state change:', err);
             }
 
             const localPfp = localStorage.getItem('bp_settings_pfp');
