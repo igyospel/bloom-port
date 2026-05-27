@@ -167,8 +167,17 @@ function MainAppContent() {
     const { error } = await loginWithGoogle();
     if (error) {
       alert(error.message || 'Google Sign-In failed.');
+    } else {
+      setCurrentView('app');
     }
   };
+
+  // Auto-redirect logged-in users away from sign-in/sign-up pages to the dashboard
+  useEffect(() => {
+    if (user && (currentView === 'signin' || currentView === 'signup')) {
+      setCurrentView('app');
+    }
+  }, [user, currentView]);
 
   const navigateToApp = () => {
     if (user) {
