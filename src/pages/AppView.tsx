@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, MessageSquare, History, Settings as SettingsIcon } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { Example } from '../components/ui/ai-actions';
@@ -21,6 +21,27 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
   const [showSettings, setShowSettings] = useState(true);
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
+
+  // Lock body scroll and set overscroll-behavior to prevent browser rubber-banding/bouncing on mobile
+  useEffect(() => {
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.overscrollBehavior = '';
+      document.body.style.overflow = '';
+      document.body.style.overscrollBehavior = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, []);
 
   return (
     <div className="bg-black text-white font-body-md overflow-hidden h-[100dvh] flex flex-col">
