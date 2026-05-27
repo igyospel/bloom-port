@@ -549,7 +549,7 @@ const Example = ({
       </div>
 
       {/* Messages viewport */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
         <div className="max-w-2xl mx-auto w-full space-y-6">
           {messages.map((message, idx) => {
             if (message.from === "user") {
