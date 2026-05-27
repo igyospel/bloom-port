@@ -1,11 +1,28 @@
 import React, { createContext, useContext, useState } from 'react';
 
+export interface Attachment {
+  url: string;
+  name: string;
+  contentType: string;
+  size: number;
+}
+
+export interface ChatSource {
+  url: string;
+  title: string;
+  snippet: string;
+}
+
 export interface ChatMessage {
   id: string;
   from: 'user' | 'assistant';
   content: string;
   avatar: string;
   name: string;
+  attachments?: Attachment[];
+  sources?: ChatSource[];
+  searchQuery?: string;
+  isSearching?: boolean;
 }
 
 export interface Session {

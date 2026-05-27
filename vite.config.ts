@@ -18,6 +18,63 @@ const localApiPlugin = () => ({
         res.end(JSON.stringify({ configured }));
         return;
       }
+
+      // 3. Handle search API locally
+      if (req.url?.startsWith('/api/search')) {
+        const url = new URL(req.url, 'http://localhost');
+        const query = url.searchParams.get('q');
+        if (!query) {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Missing query parameter q' }));
+          return;
+        }
+        try {
+          const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+          const ddgRes = await fetch(ddgUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+          });
+          const html = await ddgRes.text();
+          const results: any[] = [];
+          const resultBlocks = html.split(/class="[^"]*result__body[^"]*"/);
+
+          for (let i = 1; i < resultBlocks.length; i++) {
+            const block = resultBlocks[i];
+            const aTagMatch = block.match(/<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/);
+            const snippetMatch = block.match(/class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>/);
+
+            if (aTagMatch) {
+              const rawUrl = aTagMatch[1];
+              let targetUrl = rawUrl;
+              if (rawUrl.includes('uddg=')) {
+                const parts = rawUrl.split('uddg=');
+                if (parts[1]) {
+                  targetUrl = decodeURIComponent(parts[1].split('&')[0]);
+                }
+              }
+
+              const title = aTagMatch[2].replace(/<[^>]*>/g, '').trim();
+              const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]*>/g, '').trim() : '';
+
+              if (rawUrl.includes('ad_provider') || rawUrl.includes('duckduckgo.com/y.js')) {
+                continue;
+              }
+
+              results.push({ url: targetUrl, title, snippet });
+            }
+          }
+
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ results: results.slice(0, 10) }));
+        } catch (error: any) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: error.message || 'Internal server error' }));
+        }
+        return;
+      }
       
       // 2. Handle chat streaming API locally
       if (req.url?.startsWith('/api/chat')) {
