@@ -24,27 +24,23 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
 
   // Lock body scroll and set overscroll-behavior to prevent browser rubber-banding/bouncing on mobile
   useEffect(() => {
+    // Prevent overscroll on the document, but don't use position:fixed on body
+    // (it breaks height calculation for children)
     document.documentElement.style.overflow = 'hidden';
     document.documentElement.style.overscrollBehavior = 'none';
     document.body.style.overflow = 'hidden';
     document.body.style.overscrollBehavior = 'none';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
 
     return () => {
       document.documentElement.style.overflow = '';
       document.documentElement.style.overscrollBehavior = '';
       document.body.style.overflow = '';
       document.body.style.overscrollBehavior = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
     };
   }, []);
 
   return (
-    <div className="bg-black text-white font-body-md overflow-hidden h-[100dvh] flex flex-col">
+    <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }} className="bg-black text-white font-body-md">
       <SEO 
         title="Bloomport Chat — Free AI Models & Free LLM Chat Online" 
         description="Run mindful conversational chat using multiple free AI models. Zero-cost AI journaling, deep work timers, and focus sessions with no credits required to start."
@@ -150,7 +146,7 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
         </div>
 
         {/* Center Chat Viewport */}
-        <main className="flex-1 flex flex-col min-h-0 overflow-hidden border-r border-white/10 bg-black">
+        <main className="flex-1 overflow-hidden border-r border-white/10 bg-black" style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Example 
             selectedModel={selectedModel}
             setSelectedModel={setSelectedModel}

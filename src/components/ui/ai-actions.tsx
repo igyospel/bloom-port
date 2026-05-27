@@ -364,9 +364,9 @@ const Example = ({
   // ── EMPTY STATE — v0-style landing ──────────────────────────────────────────
   if (messages.length === 0) {
     return (
-      <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-hidden">
+      <div style={{ display: 'grid', gridTemplateRows: '1fr auto', height: '100%', width: '100%', overflow: 'hidden' }} className="bg-black">
         {/* Scrollable center content */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div style={{ overflowY: 'auto', minHeight: 0 }}>
           <div className="flex flex-col items-center justify-center min-h-full w-full px-6 py-12 max-w-2xl mx-auto fade-in-up">
 
             <h1 className="text-[28px] md:text-[32px] font-bold text-white mb-2 tracking-tight text-center font-sans">
@@ -517,9 +517,9 @@ const Example = ({
     )
   }
 
-  // ── CONVERSATION STATE ───────────────────────────────────────────────────────
+  // ── CONVERSATION STATE ──────────────────────────────────────────
   return (
-    <div className="flex flex-col flex-1 min-h-0 w-full bg-black overflow-hidden">
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr auto', height: '100%', width: '100%', overflow: 'hidden' }} className="bg-black">
       {/* Center Panel Header */}
       <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black text-white z-10">
         <div className="flex flex-col min-w-0">
@@ -553,8 +553,8 @@ const Example = ({
         </div>
       </div>
 
-      {/* Messages viewport */}
-      <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
+      {/* Messages viewport — 1fr grid row scrolls independently */}
+      <div ref={scrollContainerRef} style={{ overflowY: 'auto', minHeight: 0 }} className="p-6">
         <div className="max-w-2xl mx-auto w-full space-y-6">
           {messages.map((message, idx) => {
             if (message.from === "user") {
