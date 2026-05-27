@@ -10,7 +10,6 @@ import {
   Edit3,
   Sparkles,
   Clock,
-  Calendar,
   ChevronDown,
   ChevronRight,
   Check,
@@ -22,7 +21,6 @@ import AdBanner from './AdBanner';
 const groupLabels: Record<string, { label: string; icon: typeof Clock }> = {
   today: { label: 'Today', icon: Sparkles },
   yesterday: { label: 'Yesterday', icon: Clock },
-  older: { label: 'Older', icon: Calendar },
 };
 
 function SessionIcon({ icon, className }: { icon?: string; className?: string }) {
@@ -43,7 +41,7 @@ export default function SessionSidebar({ inDrawer }: { inDrawer?: boolean }) {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(['today', 'yesterday', 'older'])
+    new Set(['today', 'yesterday'])
   );
 
   const filteredSessions = useMemo(() => {
@@ -53,10 +51,12 @@ export default function SessionSidebar({ inDrawer }: { inDrawer?: boolean }) {
   }, [sessions, searchQuery]);
 
   const grouped = useMemo(() => {
-    const map: Record<string, Session[]> = { today: [], yesterday: [], older: [] };
+    const map: Record<string, Session[]> = { today: [], yesterday: [] };
     for (const s of filteredSessions) {
-      map[s.group] ??= [];
-      map[s.group].push(s);
+      // Only show today and yesterday — older are pruned at context level
+      if (s.group === 'today' || s.group === 'yesterday') {
+        map[s.group].push(s);
+      }
     }
     return map;
   }, [filteredSessions]);
@@ -156,8 +156,8 @@ export default function SessionSidebar({ inDrawer }: { inDrawer?: boolean }) {
           </div>
         )}
 
-        {/* Grouped Sessions */}
-        {(['today', 'yesterday', 'older'] as const).map((group) => {
+        {/* Grouped Sessions — Today & Yesterday only */}
+        {(['today', 'yesterday'] as const).map((group) => {
           const items = grouped[group];
           if (!items || items.length === 0) return null;
 
