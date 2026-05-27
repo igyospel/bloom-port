@@ -59,23 +59,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isConfigured) return;
 
+    console.log('Registering onAuthStateChange listener');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('name, avatar_url')
-            .eq('id', session.user.id)
-            .single();
+      async (event, session) => {
+        console.log('onAuthStateChange triggered:', event, session?.user?.email);
+        try {
+          if (session?.user) {
+            let profileName = '';
+            let profileAvatar = '';
 
-          const localPfp = localStorage.getItem('bp_settings_pfp');
-          setUser({
-            email: session.user.email || '',
-            name: profile?.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-            avatarUrl: localPfp || profile?.avatar_url || DEFAULT_AVATAR,
-          });
-        } else {
-          setUser(null);
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('name, avatar_url')
+                .eq('id', session.user.id)
+                .single();
+
+              if (profileError) {
+                console.warn('onAuthStateChange profile fetch error:', profileError);
+              } else if (profile) {
+                profileName = profile.name;
+                profileAvatar = profile.avatar_url;
+              }
+            } catch (err) {
+              console.error('Error fetching profile in auth state change:', err);
+            }
+
+            const localPfp = localStorage.getItem('bp_settings_pfp');
+            setUser({
+              email: session.user.email || '',
+              name: profileName || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              avatarUrl: localPfp || profileAvatar || DEFAULT_AVATAR,
+            });
+          } else {
+            setUser(null);
+          }
+        } catch (err) {
+          console.error('Fatal error in onAuthStateChange callback:', err);
+          // Fallback to minimal user object to prevent blackouts
+          if (session?.user) {
+            setUser({
+              email: session.user.email || '',
+              name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+              avatarUrl: DEFAULT_AVATAR,
+            });
+          } else {
+            setUser(null);
+          }
         }
       }
     );
@@ -124,19 +154,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyLoginOtp = async (email: string, token: string) => {
     if (!isConfigured) return mockVerifyOtp(email, token);
 
+    console.log('verifyLoginOtp: starting for', email);
     try {
       const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'login' });
+      console.log('verifyLoginOtp API response:', { data, error });
       if (error || !data) return { error: error || new Error('Invalid verification response') };
 
       // Exchange hashed_token for a real Supabase session
-      const { error: sessionError } = await supabase.auth.verifyOtp({
+      console.log('verifyLoginOtp: exchanging token_hash with type: magiclink');
+      let { error: sessionError } = await supabase.auth.verifyOtp({
         token_hash: data.hashed_token,
         type: 'magiclink',
       });
 
+      if (sessionError) {
+        console.warn('verifyLoginOtp: magiclink type verification failed, trying email type...', sessionError);
+        const emailVerify = await supabase.auth.verifyOtp({
+          token_hash: data.hashed_token,
+          type: 'email',
+        });
+        sessionError = emailVerify.error;
+      }
+
+      console.log('verifyLoginOtp supabase verifyOtp result:', { error: sessionError });
       return { error: sessionError };
     } catch (err: any) {
-      console.error('verifyLoginOtp error:', err);
+      console.error('verifyLoginOtp catch block error:', err);
       return { error: err };
     }
   };
@@ -153,18 +196,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifySignupOtp = async (email: string, token: string, name: string) => {
     if (!isConfigured) return mockVerifyOtp(email, token, name);
 
+    console.log('verifySignupOtp: starting for', email, name);
     try {
       const { data, error } = await callApi('/api/verify-otp', { email, code: token, purpose: 'signup', name });
+      console.log('verifySignupOtp API response:', { data, error });
       if (error || !data) return { error: error || new Error('Invalid verification response') };
 
-      const { error: sessionError } = await supabase.auth.verifyOtp({
+      console.log('verifySignupOtp: exchanging token_hash with type: magiclink');
+      let { error: sessionError } = await supabase.auth.verifyOtp({
         token_hash: data.hashed_token,
         type: 'magiclink',
       });
 
+      if (sessionError) {
+        console.warn('verifySignupOtp: magiclink type verification failed, trying email type...', sessionError);
+        const emailVerify = await supabase.auth.verifyOtp({
+          token_hash: data.hashed_token,
+          type: 'email',
+        });
+        sessionError = emailVerify.error;
+      }
+
+      console.log('verifySignupOtp supabase verifyOtp result:', { error: sessionError });
       return { error: sessionError };
     } catch (err: any) {
-      console.error('verifySignupOtp error:', err);
+      console.error('verifySignupOtp catch block error:', err);
       return { error: err };
     }
   };
