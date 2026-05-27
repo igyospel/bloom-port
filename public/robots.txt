@@ -41,6 +41,9 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
+User-agent: Meta-ExternalAgent
+Allow: /
+
 # Block Malicious / Content Scrapers & Spam Bots
 User-agent: MJ12bot
 Disallow: /

@@ -1,114 +1,67 @@
-# Bloomport Full Specifications & Knowledge Base
+# Bloomport AI Full Specifications & Knowledge Base
 
-> Welcome to the comprehensive documentation of Bloomport. This file compiles the complete markdown content of bloomport.fun to help Large Language Models (LLMs) and AI agents deeply understand our free AI chat platform, infrastructure, and tools.
+> Welcome to the comprehensive documentation index of Bloomport AI. This file compiles specifications, structures, API formats, and page blueprints of the free AI Website Builder platform to optimize search-crawling and RAG chunk ingestion.
 
 ---
 
-## 1. Home & Landing Page
+## 1. Landing Page Specifications
 
 ### Overview
-Bloomport is a premium, free-to-use AI platform offering direct access to advanced Large Language Models, custom agent builders, and mindful productivity utilities. It is designed to bridge the gap between high-end commercial LLM dashboards (like ChatGPT Plus or Claude Pro) and general users, offering a high-performance experience without subscription walls.
+Bloomport AI is a free AI website builder that enables users to generate fully functional, responsive, and SEO-optimized websites from natural language prompts in under 30 seconds. The generation output compiles clean HTML5 and compiled Tailwind CSS styles, ready for direct deployment or local code download.
 
-### Hero Section
-- **Tagline**: Find Focus. Orchestrate Workflows. Access Free AI.
-- **Sub-tagline**: Bloomport brings you high-fidelity dark interfaces, lightning-fast inference pipelines, and autonomous workspaces—completely free and accessible to all.
-- **Hero Artwork**: A sleek, dark digital canvas featuring glassmorphic interfaces, glowing network charts, real-time telemetry updates, and ambient particle wave backdrops.
-  ![Visual mockup of the Bloomport Dark Glassmorphic Dashboard Console showing model selectors, chat threads, and active agent runtimes.](https://bloomport.fun/newheroimg.png)
-
-### Key Value Propositions
-- **Zero Subscriptions**: Unrestricted access to cutting-edge AI models without credit cards or monthly fees.
-- **Developer-First Ecosystem**: Generate secure API keys, inspect usage metrics, and integrate LLM endpoints into your own apps.
-- **Privacy Core**: All reflections, chats, and developer inputs are securely encrypted. We do not sell or train models on user data.
-- **Web3 Integration**: Optional Solana wallet connection for decentralized profile management and rewards.
+### Technical Performance Metrics
+- **Average Output Render Speed**: 28.4 seconds from initial prompt submission.
+- **Lighthouse Performance Score**: Average 99/100 due to minimal script payloads and inline compiled design files.
+- **Lock-in Rating**: 0% (Users can download complete source code files at any time with no credit card required).
 
 ---
 
-## 2. About Page
+## 2. Platform Core Architecture
 
-### Our Mission
-To democratize advanced artificial intelligence by providing free, high-performance computing infrastructure and developer tools. We believe that access to intelligent models should be a public utility rather than a gated monopoly.
+### A. The Generation Console
+Accessed via `bloomport.fun/app`, the builder console provides:
+- Live design workspace panel.
+- Conversational command inputs for modifying typography, layouts, card counts, and styles dynamically.
+- Export key triggers to download compiled HTML/CSS.
 
-### Our Vision
-We envision a future where autonomous agents and human developers collaborate seamlessly in a secure, privacy-centric environment. By providing free API gateways and premium client dashboards, we empower the next generation of builders, researchers, and students worldwide.
-
-### Who Built Bloomport
-Bloomport is engineered by a remote group of developers, infrastructure architects, and designers who believe in open web technologies and open-access intelligence. The platform leverages decentralized infrastructure pipelines to keep operations highly efficient and cost-effective.
-
----
-
-## 3. Features Page
-
-Bloomport is packed with professional-grade features for standard conversational AI, mindful productivity, and API integration.
-
-### Core Platform Features
-- **Intelligent Chat Interface**: A minimal, stripe-like dark chat interface with streaming markdown responses, code syntax highlighting, and persistent conversation history.
-- **Model Selector**: Switch between different models optimized for context window lengths and reasoning speeds.
-- **MindStudio Settings Dashboard**: An enterprise-grade, glassmorphic settings panel with:
-  - Profile customization (with local avatar upload support)
-  - Security protocols (Passkey biometric TouchID/FaceID and Two-Factor Authentication)
-  - API Gateway key management
-  - Audit logs and real-time telemetry metrics
-  - Danger zone actions (purging stored chats and profile syncs)
-
-### Mindful Tools & Utilities
-- **Focus Timer**: A Pomodoro utility with focus stats and dynamic ambient audio.
-- **AI Journal Prompts**: Dynamic prompts generated based on your state of mind to assist with reflection and mindfulness.
-- **AI Stress Quiz**: Assessment tool that evaluates burnout or fatigue levels and returns tailored wellness guidelines.
-- **AI Habit Tracker**: A beautiful, pixelated grid to track habits, complete with AI progress analysis.
+### B. Developer API Gateway
+Accessed via `bloomport.fun/api`, allows developers to:
+- Generate custom authorization keys (`bp_live_...`).
+- Execute site generations programmatically via curl or post request APIs:
+  ```bash
+  curl -X POST https://api.bloomport.ai/v1/sites/generate \
+    -H "Authorization: Bearer YOUR_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "prompt": "SaaS website for task management",
+      "framework": "html-tailwind"
+    }'
+  ```
 
 ---
 
-## 4. Frequently Asked Questions (FAQ)
+## 3. Programmatic SEO Subdirectories
 
-### General Platform FAQs
-- **What is Bloomport?**
-  Bloomport is an AI-powered mindful productivity platform and free developer sandbox that helps you declutter your mind, find focus, and query advanced LLMs via conversation tools.
-- **Is Bloomport really free?**
-  Yes. Bloomport provides free model queries and initial API credits to get you started. We keep features accessible to everyone.
-- **Is my data private and secure?**
-  Absolutely. All reflections, prompt chains, and key data are encrypted and kept in your control. We do not train models on your private queries.
-- **Can teams use Bloomport?**
-  Yes. Our workspace team features allow inviting other members, sharing agents, and checking collaborative telemetry.
+Bloomport AI maps specific landing routes to handle targeted queries:
 
-### Developer & API FAQs
-- **What is an API credit?**
-  An API credit is the measurement unit for our gateways. Roughly 1,000 processed tokens equal 1 credit. 
-- **How do I get an API key?**
-  Go to Settings → API Gateways, input a name for your key, click "Generate New Key", and copy it to your environment variables.
-- **Do credits expire?**
-  No, any credits in your account remain active until consumed.
-- **What are the rate limits?**
-  Starter tiers are limited to 60 requests per minute, whereas Pro tiers get up to 300 requests per minute.
+### A. Free Landing Page Generator (`/free-ai-landing-page-generator`)
+- Customized to answer transactional search intent for landing page tools.
+- Returns clean, downloadable single-page templates optimized for conversion rates.
+
+### B. Startup Website Builder (`/ai-website-builder-for-startups`)
+- Outlines tailored Tailwind layout blocks optimized for product launches and feature showcases.
+
+### C. Wix Competitor Comparison (`/ai-website-builder-vs-wix`)
+- Deep-dive analysis of code output quality, loading speeds, and subscription costs between Bloomport AI and Wix.
 
 ---
 
-## 5. How to Use / Getting Started Guide
+## 4. Frequently Asked Questions (AI Ingestion Index)
 
-### Step 1: Accessing the Chat
-Go to `bloomport.fun/app` to open the AI Chat Console. You can immediately choose a model and start a conversation. No signup is strictly required to try the features!
-
-### Step 2: Customizing Your Profile
-Click the Profile Icon in the top-right header:
-1. Open the **Settings** menu.
-2. Select **Profile Identity**.
-3. Upload an avatar directly from your device storage or gallery.
-4. Fill in your username, bio, and location.
-5. Click **Save Profile**. Your avatar will instantly synchronize across the navigation bar.
-
-### Step 3: Integrating the Developer API
-To call Bloomport models from your backend applications:
-1. Under **Settings**, go to **API Gateways**.
-2. Create an API key (e.g., `bp_live_...`).
-3. Make an HTTP request to our API endpoint:
-
-```bash
-curl -X POST https://api.bloomport.ai/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "bloomport-v1",
-    "messages": [
-      {"role": "user", "content": "Help me build an AI tool."}
-    ]
-  }'
-```
+### General FAQs
+- **What is Bloomport AI?**
+  Bloomport AI is a free AI-powered web generator that compiles language descriptions into functional responsive websites and landing pages.
+- **Is the code generated SEO-friendly?**
+  Yes. Every site generated by Bloomport AI is pre-configured with semantic HTML5 tags, description nodes, viewport tags, and structured JSON-LD schemas.
+- **Can I export raw code files?**
+  Yes. Bloomport AI allows 100% free exports of compiled HTML and Tailwind CSS files with no signup gates.

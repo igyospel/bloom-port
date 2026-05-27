@@ -35,7 +35,10 @@ type ViewType =
   | 'stressquiz'
   | 'habittracker'
   | 'about'
-  | 'error';
+  | 'error'
+  | 'pseo-landing-page-gen'
+  | 'pseo-startup-web'
+  | 'pseo-best-builder';
 
 const sampleTestimonials = [
   {
@@ -95,6 +98,12 @@ function MainAppContent() {
         const slug = path.substring(5);
         setCurrentBlogSlug(slug);
         setCurrentView('blogpost');
+      } else if (path === 'free-ai-landing-page-generator') {
+        setCurrentView('pseo-landing-page-gen');
+      } else if (path === 'generate-startup-website-with-ai' || path === 'ai-website-builder-for-startups') {
+        setCurrentView('pseo-startup-web');
+      } else if (path === 'best-ai-website-builder') {
+        setCurrentView('pseo-best-builder');
       } else if (path === 'signin') {
         setCurrentView('signin');
       } else if (path === 'signup') {
@@ -131,6 +140,12 @@ function MainAppContent() {
       targetPath = 'tools/stress-quiz';
     } else if (currentView === 'habittracker') {
       targetPath = 'tools/habit-tracker';
+    } else if (currentView === 'pseo-landing-page-gen') {
+      targetPath = 'free-ai-landing-page-generator';
+    } else if (currentView === 'pseo-startup-web') {
+      targetPath = 'ai-website-builder-for-startups';
+    } else if (currentView === 'pseo-best-builder') {
+      targetPath = 'best-ai-website-builder';
     } else {
       targetPath = currentView;
     }
@@ -183,11 +198,15 @@ function MainAppContent() {
 
   return (
     <>
-      {currentView === 'landing' && (
+      {(currentView === 'landing' ||
+        currentView === 'pseo-landing-page-gen' ||
+        currentView === 'pseo-startup-web' ||
+        currentView === 'pseo-best-builder') && (
         <Landing
           onNavigate={navigateToApp}
           onNavigateApi={() => setCurrentView('api')}
           onNavigateDocs={() => setCurrentView('docs')}
+          viewType={currentView}
         />
       )}
       {currentView === 'app' && (
