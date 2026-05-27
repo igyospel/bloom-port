@@ -414,7 +414,7 @@ export default function ErrorPage({
           {/* Main Error Message & Content */}
           <div className="space-y-6 max-w-lg mt-4">
             <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight text-white">
+              <h1 className="text-3xl sm:text-4xl font-sans font-semibold tracking-tight text-white">
                 We couldn't find this page
               </h1>
               <p className="text-xs sm:text-sm text-white/55 leading-relaxed">
