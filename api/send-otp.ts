@@ -87,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const { error: emailError } = await resend.emails.send({
-      from: 'Bloomport <noreply@bloomport.fun>',
+      from: 'Bloomport <onboarding@resend.dev>',
       to: email,
       subject: isLogin ? 'Your Bloomport sign-in code' : 'Verify your Bloomport account',
       html: `
