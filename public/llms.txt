@@ -12,10 +12,10 @@
 
 ## Interactive AI Tools
 
-- [Focus Timer](https://bloomport.fun/focustimer): A clean, gamified Pomodoro timer with ambient audio and AI productivity tracking.
-- [AI Journal Prompts](https://bloomport.fun/journalprompts): A mindful journaling utility featuring dynamic, AI-generated prompts tailored to your mood.
-- [AI Stress Quiz](https://bloomport.fun/stressquiz): An interactive self-assessment that provides custom AI wellness recommendations.
-- [AI Habit Tracker](https://bloomport.fun/habittracker): A visual grid-based tracker to monitor and optimize daily habits with AI insights.
+- [Focus Timer](https://bloomport.fun/tools/focus-timer): A clean, gamified Pomodoro timer with ambient audio and AI productivity tracking.
+- [AI Journal Prompts](https://bloomport.fun/tools/journal-prompts): A mindful journaling utility featuring dynamic, AI-generated prompts tailored to your mood.
+- [AI Stress Quiz](https://bloomport.fun/tools/stress-quiz): An interactive self-assessment that provides custom AI wellness recommendations.
+- [AI Habit Tracker](https://bloomport.fun/tools/habit-tracker): A visual grid-based tracker to monitor and optimize daily habits with AI insights.
 
 ## Key Features
 

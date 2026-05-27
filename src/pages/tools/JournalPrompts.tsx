@@ -100,6 +100,59 @@ const faqSchema = {
   ],
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bloomport.fun"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Tools",
+      "item": "https://bloomport.fun/tools/journal-prompts"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Journal Prompts",
+      "item": "https://bloomport.fun/tools/journal-prompts"
+    }
+  ]
+};
+
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Practice Mindful AI Journaling",
+  "description": "A simple guide to daily self-reflection using Bloomport's free guided AI journal prompts.",
+  "totalTime": "PT10M",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Select journaling category",
+      "text": "Choose a prompt focus: Gratitude, Mental Clarity, Stress & Anxiety, Self-Discovery, or Focus & Productivity.",
+      "url": "https://bloomport.fun/tools/journal-prompts"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Generate prompt",
+      "text": "Click 'New Prompt' to load a targeted question designed to stimulate mindful self-reflection.",
+      "url": "https://bloomport.fun/tools/journal-prompts"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Reflect and write",
+      "text": "Spend 5 to 10 minutes writing down your thoughts, processing emotions honestly and without self-judgment.",
+      "url": "https://bloomport.fun/tools/journal-prompts"
+    }
+  ]
+};
+
 export default function JournalPrompts({ onNavigateHome, onNavigateApp }: JournalPromptsProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
@@ -143,6 +196,8 @@ export default function JournalPrompts({ onNavigateHome, onNavigateApp }: Journa
         path="/tools/journal-prompts"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }} />
 
       <header className="w-full flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
         <button onClick={onNavigateHome} className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer" aria-label="Back to home">

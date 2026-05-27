@@ -1,5 +1,5 @@
 # robots.txt optimized for search engines and AI knowledge bases
-# See also: https://bloomport.fun/llms.txt and https://bloomport.fun/llms-full.txt for AI-optimized documentation
+# See also: https://bloomport.fun/llms.txt, https://bloomport.fun/llms-full.txt, and https://bloomport.fun/ai.txt
 
 User-agent: *
 Allow: /
@@ -32,6 +32,15 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
 # Block Malicious / Content Scrapers & Spam Bots
 User-agent: MJ12bot
 Disallow: /
@@ -60,5 +69,6 @@ Disallow: /
 User-agent: Grub
 Disallow: /
 
-# Sitemap
+# Sitemap & AI Metadata Index
 Sitemap: https://bloomport.fun/sitemap.xml
+

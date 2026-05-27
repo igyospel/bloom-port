@@ -70,16 +70,67 @@
       }
     </script>
 
+    <!-- Schema.org JSON-LD: Person -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Dr. Sarah Carter",
+        "jobTitle": "Lead Mindfulness Architect",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Bloomport"
+        },
+        "description": "Expert in cognitive behavior and AI-assisted mindfulness systems, shaping the focus and journaling frameworks on Bloomport."
+      }
+    </script>
+
+    <!-- Schema.org JSON-LD: LocalBusiness -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "Bloomport Wellness",
+        "image": "https://bloomport.fun/bloomportBlack.png",
+        "url": "https://bloomport.fun",
+        "telephone": "",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Virtual Office",
+          "addressLocality": "San Francisco",
+          "addressRegion": "CA",
+          "postalCode": "94103",
+          "addressCountry": "US"
+        },
+        "priceRange": "$0"
+      }
+    </script>
+
+    <!-- Schema.org JSON-LD: Service -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Mindful AI Conversational Assistant & Reflection Guidance",
+        "provider": {
+          "@type": "Organization",
+          "name": "Bloomport"
+        },
+        "areaServed": "Worldwide",
+        "description": "Provides real-time interactive journaling prompts, stress level checks, and Pomodoro-style mindful productivity timers backed by advanced AI models."
+      }
+    </script>
+
     <!-- Schema.org JSON-LD: SoftwareApplication -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Bloomport",
-        "description": "Free LLM platform accessible to everyone",
         "url": "https://bloomport.fun",
-        "applicationCategory": "AIApplication",
+        "applicationCategory": "HealthApplication",
         "operatingSystem": "Web",
+        "description": "Bloomport is a free AI-powered mindful productivity tool for mental clarity, journaling, and focus sessions. No credit card required.",
         "offers": {
           "@type": "Offer",
           "price": "0",

@@ -55,6 +55,65 @@ const faqSchema = {
   ],
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bloomport.fun"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Tools",
+      "item": "https://bloomport.fun/tools/focus-timer"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Focus Timer",
+      "item": "https://bloomport.fun/tools/focus-timer"
+    }
+  ]
+};
+
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Practice Pomodoro with Bloomport Focus Timer",
+  "description": "A step-by-step guide to practicing mindful Pomodoro focus sessions to reduce overthinking and increase deep work quality.",
+  "totalTime": "PT30M",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Start Focus Block",
+      "text": "Work for 25 minutes on a single, intentional task without checking phone notifications or social media.",
+      "url": "https://bloomport.fun/tools/focus-timer"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Take Mindful Short Break",
+      "text": "When the timer rings, take a 5-minute break. Use Bloomport's box breathing timer or walk away from your screen.",
+      "url": "https://bloomport.fun/tools/focus-timer"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Repeat 4 Cycles",
+      "text": "Complete four cycles of 25-minute focus blocks and 5-minute short breaks.",
+      "url": "https://bloomport.fun/tools/focus-timer"
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Take Long Break",
+      "text": "After the fourth cycle, reward your mind with a 15-minute long break to reset before the next focus group.",
+      "url": "https://bloomport.fun/tools/focus-timer"
+    }
+  ]
+};
+
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -117,6 +176,8 @@ export default function FocusTimer({ onNavigateHome, onNavigateApp }: FocusTimer
         path="/tools/focus-timer"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }} />
 
       <header className="w-full flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
         <button onClick={onNavigateHome} className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer" aria-label="Back to home">

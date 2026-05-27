@@ -81,16 +81,20 @@ function MainAppContent() {
         setCurrentView('docs');
       } else if (path === 'app') {
         setCurrentView('app');
-      } else if (path === 'focustimer') {
+      } else if (path === 'focustimer' || path === 'tools/focus-timer') {
         setCurrentView('focustimer');
-      } else if (path === 'journalprompts') {
+      } else if (path === 'journalprompts' || path === 'tools/journal-prompts') {
         setCurrentView('journalprompts');
-      } else if (path === 'stressquiz') {
+      } else if (path === 'stressquiz' || path === 'tools/stress-quiz') {
         setCurrentView('stressquiz');
-      } else if (path === 'habittracker') {
+      } else if (path === 'habittracker' || path === 'tools/habit-tracker') {
         setCurrentView('habittracker');
       } else if (path === 'blog') {
         setCurrentView('blog');
+      } else if (path.startsWith('blog/')) {
+        const slug = path.substring(5);
+        setCurrentBlogSlug(slug);
+        setCurrentView('blogpost');
       } else if (path === 'signin') {
         setCurrentView('signin');
       } else if (path === 'signup') {
@@ -113,11 +117,28 @@ function MainAppContent() {
   // Update window URL path when currentView changes (pushState)
   useEffect(() => {
     const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
-    const targetPath = currentView === 'landing' ? '' : currentView;
-    if (currentPath !== targetPath && currentView !== 'blogpost') {
+    let targetPath = '';
+    
+    if (currentView === 'landing') {
+      targetPath = '';
+    } else if (currentView === 'blogpost') {
+      targetPath = `blog/${currentBlogSlug}`;
+    } else if (currentView === 'focustimer') {
+      targetPath = 'tools/focus-timer';
+    } else if (currentView === 'journalprompts') {
+      targetPath = 'tools/journal-prompts';
+    } else if (currentView === 'stressquiz') {
+      targetPath = 'tools/stress-quiz';
+    } else if (currentView === 'habittracker') {
+      targetPath = 'tools/habit-tracker';
+    } else {
+      targetPath = currentView;
+    }
+
+    if (currentPath !== targetPath) {
       window.history.pushState(null, '', `/${targetPath}`);
     }
-  }, [currentView]);
+  }, [currentView, currentBlogSlug]);
 
   // Custom Event-based routing
   useEffect(() => {

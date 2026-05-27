@@ -72,6 +72,31 @@ const faqSchema = {
   ],
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bloomport.fun"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Tools",
+      "item": "https://bloomport.fun/tools/habit-tracker"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Habit Tracker",
+      "item": "https://bloomport.fun/tools/habit-tracker"
+    }
+  ]
+};
+
 // Helper: Get local ISO date string (YYYY-MM-DD)
 function getLocalDateStr(date: Date = new Date()): string {
   const year = date.getFullYear();
@@ -253,6 +278,7 @@ export default function HabitTracker({ onNavigateHome, onNavigateApp }: HabitTra
         path="/tools/habit-tracker"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <header className="w-full flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
         <button onClick={onNavigateHome} className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer" aria-label="Back to home">

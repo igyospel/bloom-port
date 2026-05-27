@@ -73,6 +73,31 @@ export default function BlogPost({ slug, onNavigateHome, onNavigateBlog, onNavig
     })),
   };
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': 'https://bloomport.fun',
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Blog',
+        'item': 'https://bloomport.fun/blog',
+      },
+      {
+        '@type': 'ListItem',
+        'position': 3,
+        'name': post.title,
+        'item': `https://bloomport.fun/blog/${post.slug}`,
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-black text-white font-sans">
       <SEO
@@ -85,6 +110,7 @@ export default function BlogPost({ slug, onNavigateHome, onNavigateBlog, onNavig
       {/* Structured Data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       {post.schema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(post.schema) }} />
       )}

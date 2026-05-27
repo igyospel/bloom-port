@@ -82,6 +82,31 @@ const faqSchema = {
   ],
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bloomport.fun"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Tools",
+      "item": "https://bloomport.fun/tools/stress-quiz"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Stress Quiz",
+      "item": "https://bloomport.fun/tools/stress-quiz"
+    }
+  ]
+};
+
 export default function StressQuiz({ onNavigateHome, onNavigateApp }: StressQuizProps) {
   const [status, setStatus] = useState<'intro' | 'quiz' | 'result'>('intro');
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -158,6 +183,7 @@ export default function StressQuiz({ onNavigateHome, onNavigateApp }: StressQuiz
         path="/tools/stress-quiz"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <header className="w-full flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-40">
         <button onClick={onNavigateHome} className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer" aria-label="Back to home">
