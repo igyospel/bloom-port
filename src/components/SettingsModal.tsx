@@ -90,7 +90,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
   const [email, setEmail] = useState(user.email);
   const [pfpUrl, setPfpUrl] = useState<string>(() => localStorage.getItem('bp_settings_pfp') || user.avatarUrl || '');
   const [username, setUsername] = useState(() => localStorage.getItem('bp_settings_username') || 'argadev');
-  const [website, setWebsite] = useState(() => localStorage.getItem('bp_settings_website') || 'bloomport.fun');
+  const [website, setWebsite] = useState(() => localStorage.getItem('bp_settings_website') || '');
   const [location, setLocation] = useState(() => localStorage.getItem('bp_settings_location') || 'Jakarta, ID');
   const [company, setCompany] = useState(() => localStorage.getItem('bp_settings_company') || 'Bloomport AI');
   const [bio, setBio] = useState(() => localStorage.getItem('bp_settings_bio') || 'Building autonomous agentic workflows and mindful developer systems.');
@@ -572,13 +572,29 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-white/50 font-mono">Website</label>
-                        <input 
-                          type="url"
-                          value={website}
-                          onChange={(e) => setWebsite(e.target.value)}
-                          className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-white/35 transition-all"
-                        />
+                        <div className="flex items-center gap-2">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-white/50 font-mono">Website</label>
+                          <span className="text-[9px] font-semibold text-white/25 uppercase tracking-wider bg-white/[0.04] border border-white/8 px-1.5 py-0.5 rounded-full">Optional</span>
+                        </div>
+                        <div className="relative">
+                          <input 
+                            type="url"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            placeholder="https://yourwebsite.com"
+                            className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-white/35 transition-all pr-8 placeholder:text-white/20"
+                          />
+                          {website && (
+                            <button
+                              type="button"
+                              onClick={() => setWebsite('')}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors cursor-pointer"
+                              title="Clear website"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       <div className="space-y-1.5">
