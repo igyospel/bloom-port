@@ -148,13 +148,19 @@ function saveActiveSession(id: string | null) {
 // ── Provider ──────────────────────────────────────────────────────────────────
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [sessions, setSessions] = useState<Session[]>(() => loadFromStorage());
-  const [activeSessionId, setActiveSessionIdState] = useState<string | null>(() => {
-    const stored = loadActiveSession();
-    // Validate that the stored active session still exists after pruning
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [activeSessionId, setActiveSessionIdState] = useState<string | null>(null);
+
+  // Load from storage after mounting (SSR safe)
+  useEffect(() => {
     const loaded = loadFromStorage();
-    return loaded.some((s) => s.id === stored) ? stored : null;
-  });
+    setSessions(loaded);
+    
+    const stored = loadActiveSession();
+    if (loaded.some((s) => s.id === stored)) {
+      setActiveSessionIdState(stored);
+    }
+  }, []);
 
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
