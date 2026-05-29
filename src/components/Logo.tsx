@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type LogoVariant = "light" | "dark";
 
 const logoSrc: Record<LogoVariant, string> = {
@@ -13,10 +15,13 @@ export function Logo({
   variant?: LogoVariant;
 }) {
   return (
-    <img
+    <Image
       src={logoSrc[variant]}
       alt="Bloomport"
+      width={186}
+      height={40}
       className={`object-contain ${className}`}
+      priority
     />
   );
 }

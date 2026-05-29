@@ -46,11 +46,10 @@ const SignInPageDemo = () => {
   return (
     <div className="bg-[#0a0a0a] text-white">
       <SignInPage
-        heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
         testimonials={sampleTestimonials}
-        onSignIn={handleSignIn}
+        onSendOtp={async (email) => { console.log("send otp to", email); return { error: null }; }}
+        onVerifyOtp={async (email, code) => { console.log("verify otp", code, "for", email); return { error: null }; }}
         onGoogleSignIn={handleGoogleSignIn}
-        onResetPassword={handleResetPassword}
         onCreateAccount={handleCreateAccount}
       />
     </div>

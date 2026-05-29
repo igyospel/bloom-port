@@ -14,10 +14,10 @@ import { UnifiedProfileControl } from '../components/ui/unified-profile-control'
 export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: { onNavigate: () => void; onNavigateApi: () => void; onNavigateDocs: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   // Parameter states shared between SettingsSidebar and Example (Chat Panel)
-  const [selectedModel, setSelectedModel] = useState('mistralai/mistral-small-2603');
+  const [selectedModel, setSelectedModel] = useState('mistralai/mistral-small-2603:online');
   const [temperature, setTemperature] = useState(0.7);
   const [contextLength, setContextLength] = useState(128); // 128K
   const [showSettings, setShowSettings] = useState(true);
@@ -69,7 +69,9 @@ export default function AppView({ onNavigate, onNavigateApi, onNavigateDocs }: {
         </nav>
 
         <div className="flex items-center gap-4">
-          {user ? (
+          {isLoading ? (
+            <div className="w-24 h-8 animate-pulse bg-white/10 rounded-full" />
+          ) : user ? (
             <UnifiedProfileControl />
           ) : (
             <>

@@ -58,15 +58,16 @@ export function ApiComputeVisualization() {
       draw() {
         if (this.x < 0 || this.x > width) return;
 
+        const context = ctx!;
         // Gradient for particle tail
-        const grad = ctx.createLinearGradient(this.x - this.length, this.y, this.x, this.y);
+        const grad = context.createLinearGradient(this.x - this.length, this.y, this.x, this.y);
         grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
         grad.addColorStop(1, `rgba(255, 255, 255, ${0.12 * (1 - this.lineIndex * 0.2)})`);
 
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = this.lineWidth;
-        ctx.beginPath();
-        ctx.moveTo(this.x - this.length, this.y);
+        context.strokeStyle = grad;
+        context.lineWidth = this.lineWidth;
+        context.beginPath();
+        context.moveTo(this.x - this.length, this.y);
         
         // Draw segment
         const steps = 6;
@@ -77,10 +78,10 @@ export function ApiComputeVisualization() {
           const amplitude = 30 + this.lineIndex * 8;
           const frequency = Math.PI * 2.2;
           const sy = height * 0.45 + Math.sin(st * frequency) * amplitude + offset;
-          ctx.lineTo(sx, sy);
+          context.lineTo(sx, sy);
         }
         
-        ctx.stroke();
+        context.stroke();
       }
     }
 

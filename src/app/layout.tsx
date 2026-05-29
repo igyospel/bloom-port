@@ -1,42 +1,38 @@
 import type { Metadata } from 'next';
-import { Inter, Outfit } from 'next/font/google';
+import { Host_Grotesk, Hanken_Grotesk } from 'next/font/google';
 import Script from 'next/script';
 import '@/index.css';
 import Providers from './providers';
 
-const inter = Inter({
+const hostGrotesk = Host_Grotesk({
   subsets: ['latin'],
   variable: '--font-sans',
 });
 
-const outfit = Outfit({
+const hankenGrotesk = Hanken_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
 });
 
 export const metadata: Metadata = {
-  title: 'Bloomport AI — Free AI Website Builder & Generator',
-  description: 'Generate responsive websites and landing pages in 30 seconds with Bloomport AI. Export clean Tailwind CSS and HTML code. Free, no credit card required.',
+  title: 'Bloomport AI | Free AI Chatbot & Intelligent Assistant',
+  description: 'Chat instantly with Bloomport AI, your free intelligent conversational assistant. No login required, start chatting now.',
   keywords: [
-    'free ai website builder',
-    'ai website generator',
-    'ai landing page creator',
-    'no-code web generator',
-    'instant website builder',
-    'tailwind css generator',
+    'free ai chatbot',
+    'ai assistant',
+    'chatgpt alternative',
+    'conversational ai',
+    'free chat ai',
     'bloomport ai',
-    'seo ready websites',
-    'responsive layout builder'
+    'smart virtual assistant',
+    'ai prompt chat'
   ],
   metadataBase: new URL('https://bloomport.fun'),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: 'website',
     url: 'https://bloomport.fun',
-    title: 'Bloomport AI — Free AI Website Builder & Generator',
-    description: 'Generate responsive websites and landing pages in 30 seconds with Bloomport AI. Export clean Tailwind CSS and HTML code. Free, no credit card required.',
+    title: 'Bloomport AI | Free AI Chatbot & Intelligent Assistant',
+    description: 'Chat instantly with Bloomport AI, your free intelligent conversational assistant. No login required, start chatting now.',
     images: [
       {
         url: '/bloomportBlack.png',
@@ -47,13 +43,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bloomport AI — Free AI Website Builder & Generator',
-    description: 'Generate responsive websites and landing pages in 30 seconds with Bloomport AI. Export clean Tailwind CSS and HTML code. Free, no credit card required.',
+    title: 'Bloomport AI | Free AI Chatbot & Intelligent Assistant',
+    description: 'Chat instantly with Bloomport AI, your free intelligent conversational assistant. No login required, start chatting now.',
     images: ['/bloomportBlack.png'],
   },
   robots: {
     index: true,
     follow: true,
+  },
+  other: {
+    'monetag': '222cf21abe3227c06e8a970cb1a8649a',
   },
 };
 
@@ -68,7 +67,7 @@ export default function RootLayout({
     "name": "Bloomport AI",
     "url": "https://bloomport.fun",
     "logo": "https://bloomport.fun/bloomportBlack.png",
-    "description": "Bloomport AI is a free AI website builder and landing page generator. Create responsive Tailwind CSS layouts in seconds.",
+    "description": "Bloomport AI is a free AI chatbot and intelligent virtual assistant. Chat instantly and solve problems with AI.",
     "sameAs": [
       "https://twitter.com/bloomport",
       "https://github.com/igyospel/bloom-port"
@@ -91,12 +90,12 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Dr. Sarah Carter",
-    "jobTitle": "Lead AI Design Engineer",
+    "jobTitle": "Lead AI Engineer",
     "worksFor": {
       "@type": "Organization",
       "name": "Bloomport AI"
     },
-    "description": "Expert in neural design generators and automated CSS compilers, leading the layout optimization engine at Bloomport AI."
+    "description": "Expert in natural language processing and advanced neural conversational models, leading the AI engine at Bloomport AI."
   };
 
   const localBusinessSchema = {
@@ -226,7 +225,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${hostGrotesk.variable} ${hankenGrotesk.variable}`} style={{ backgroundColor: '#000000' }}>
       <head>
         <meta name="theme-color" content="#000000" />
         <link rel="shortcut icon" href="/favicon.ico" />
@@ -234,6 +233,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="llms" href="/llms.txt" />
+        <link rel="preload" as="image" href="/_next/image?url=%2FlandingAnimated-poster.jpg&amp;w=1920&amp;q=75" />
 
         {/* Structured Schema Injections */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
@@ -245,14 +245,23 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
+        {/* Monetag */}
+        <Script
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="244037"
+          data-cfasync="false"
+          async
+          strategy="afterInteractive"
+        />
+
         {/* Google AdSense */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8100210912904825"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="adsense-init" strategy="afterInteractive">
+        <Script id="adsense-init" strategy="lazyOnload">
           {`
             window.adsbygoogle = window.adsbygoogle || [];
             window.adConfig = window.adConfig || function(o) { (window.adsbygoogle = window.adsbygoogle || []).push(o); };
@@ -265,11 +274,8 @@ export default function RootLayout({
         </Script>
 
         {/* Monetag Script Registration */}
-        <Script id="monetag-init" strategy="afterInteractive">
+        <Script id="monetag-init" strategy="lazyOnload">
           {`
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('/sw.js', { scope: '/' });
-            }
             window.monetagShowAd = function() {
               return new Promise(function(resolve) {
                 if (typeof window.show === 'function') {
@@ -284,7 +290,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="antialiased bg-black text-white selection:bg-white selection:text-black">
+      <body className="antialiased bg-black text-white font-sans selection:bg-white selection:text-black" style={{ backgroundColor: '#000000' }}>
         <Providers>{children}</Providers>
       </body>
     </html>

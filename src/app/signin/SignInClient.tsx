@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -30,13 +31,19 @@ const sampleTestimonials = [
 
 export default function SignInClient() {
   const router = useRouter();
-  const { sendLoginOtp, verifyLoginOtp, loginWithGoogle } = useAuth();
+  const { user, sendLoginOtp, verifyLoginOtp, loginWithGoogle, isMock } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      router.push('/app');
+    }
+  }, [user, router]);
 
   const handleGoogleSignIn = async () => {
     const { error } = await loginWithGoogle();
     if (error) {
       alert(error.message || 'Google Sign-In failed.');
-    } else {
+    } else if (isMock) {
       router.push('/app');
     }
   };

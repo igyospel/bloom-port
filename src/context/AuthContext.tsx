@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 export interface User {
   email: string;
@@ -10,6 +12,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   /** Step 1: Send 6-digit OTP to email for login */
   sendLoginOtp: (email: string) => Promise<{ error: any }>;
   /** Step 2: Verify OTP code for login */
@@ -41,20 +44,27 @@ const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ── MOCK SYSTEM (If Supabase is not configured) ──────────────────────────
   const loadMockUser = () => {
-    const saved = localStorage.getItem('bloomport-user');
-    if (!saved) return null;
-    const parsed = JSON.parse(saved);
-    const localPfp = localStorage.getItem('bp_settings_pfp');
-    if (localPfp) parsed.avatarUrl = localPfp;
-    return parsed;
+    try {
+      const saved = localStorage.getItem('bloomport-user');
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      const localPfp = localStorage.getItem('bp_settings_pfp');
+      if (localPfp) parsed.avatarUrl = localPfp;
+      return parsed;
+    } catch (e) {
+      console.warn('Failed to parse mock user from localStorage', e);
+      return null;
+    }
   };
 
   useEffect(() => {
     if (!isConfigured) {
       setUser(loadMockUser());
+      setIsLoading(false);
     }
   }, []);
 
@@ -62,11 +72,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isConfigured) return;
 
+    let isMounted = true;
+
+    // Fallback timer: if getSession hangs (e.g. due to Brave Shields or corrupted indexedDB), force load completion
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted && isLoading) {
+        console.warn("AuthContext getSession timed out, forcing load completion to prevent infinite loading");
+        setIsLoading(false);
+      }
+    }, 2000);
+
+    // Explicitly fetch session on mount to prevent the 'logged out' flash
+    // while onAuthStateChange takes time to fire INITIAL_SESSION
+    supabase.auth.getSession().then(({ data, error }) => {
+      clearTimeout(fallbackTimer);
+      if (!isMounted) return;
+      
+      const session = data?.session;
+      if (session?.user) {
+        // We just need a basic user object immediately to prevent UI flash
+        setUser({
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+          avatarUrl: session.user.user_metadata?.avatar_url || DEFAULT_AVATAR,
+        });
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    }).catch((err) => {
+      clearTimeout(fallbackTimer);
+      console.error("AuthContext getSession error:", err);
+      if (isMounted) {
+        setUser(null);
+        setIsLoading(false);
+      }
+    });
+
     console.log('Registering onAuthStateChange listener');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('onAuthStateChange triggered:', event, session?.user?.email);
         
+        // If we are inside a popup, we close the window after successful sign in
+        if (event === 'SIGNED_IN' && typeof window !== 'undefined' && window.opener) {
+          setTimeout(() => window.close(), 500);
+        }
+
         // Defer all database calls/async operations inside onAuthStateChange 
         // to prevent client-side deadlock in supabase-js (which blocks verifyOtp)
         setTimeout(async () => {
@@ -132,11 +184,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUser(null);
             }
           }
+          if (isMounted) setIsLoading(false);
         }, 0);
       }
     );
 
-    return () => { subscription.unsubscribe(); };
+    return () => { 
+      isMounted = false;
+      subscription.unsubscribe(); 
+    };
   }, []);
 
   // ── HELPER: Call our Bloomport API routes ─────────────────────────────────
@@ -262,7 +318,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/app' },
+        options: { 
+          redirectTo: `${window.location.origin}/auth/callback?next=/app`
+        },
       });
       return { error };
     } catch (e) {
@@ -337,6 +395,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
+        isLoading,
         sendLoginOtp,
         verifyLoginOtp,
         sendSignupOtp,

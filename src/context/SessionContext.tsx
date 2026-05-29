@@ -23,6 +23,10 @@ export interface ChatMessage {
   sources?: ChatSource[];
   searchQuery?: string;
   isSearching?: boolean;
+  toolCallName?: string;
+  toolCallArgs?: string;
+  toolCallStatus?: 'running' | 'success' | 'error';
+  toolCallResult?: string;
 }
 
 export interface Session {

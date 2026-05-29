@@ -19,7 +19,7 @@ import { useCredits } from '../../context/CreditContext';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar, AvatarImage, AvatarFallback } from './avatar';
 import RewardedAdModal from '../RewardedAdModal';
-import SettingsModal from '../SettingsModal';
+import SettingsModal, { TabType } from '../SettingsModal';
 import { cn } from '../../lib/utils';
 
 // ── Dropdown Particle Flow Background Component ──────────────────────────────
@@ -119,6 +119,20 @@ export function UnifiedProfileControl() {
   const [adOpen, setAdOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<TabType>('profile');
+
+  useEffect(() => {
+    const handleOpenSettings = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const tab = (customEvent.detail?.tab || 'profile') as TabType;
+      setSettingsTab(tab);
+      setSettingsOpen(true);
+    };
+    window.addEventListener('bloomport-open-settings', handleOpenSettings);
+    return () => {
+      window.removeEventListener('bloomport-open-settings', handleOpenSettings);
+    };
+  }, []);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -384,6 +398,7 @@ export function UnifiedProfileControl() {
             onClose={() => setSettingsOpen(false)} 
             user={user} 
             updateProfile={updateProfile} 
+            initialTab={settingsTab}
           />
         )}
       </AnimatePresence>

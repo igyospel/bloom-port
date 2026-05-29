@@ -9,4 +9,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Guard createClient to prevent runtime crashes on configuration absence
+export const supabase = (supabaseUrl && supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : {
+      auth: {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        getUser: async () => ({ data: { user: null }, error: null }),
+        signOut: async () => ({ error: null }),
+      },
+      from: () => ({
+        select: () => ({
+          order: () => ({
+            limit: () => Promise.resolve({ data: [], error: null })
+          })
+        })
+      })
+    } as any;

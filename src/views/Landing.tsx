@@ -3,17 +3,19 @@
 import { useState } from 'react';
 import { Menu, X, ArrowRight, Zap, Sparkles, ShieldCheck } from 'lucide-react';
 import { Logo } from '../components/Logo';
-import TextRevealFAQs from '../components/ui/text-reveal-faqs';
-import { TrustedByShowcase } from '../components/ui/trusted-by-showcase';
-import { Features } from '../components/ui/features-11';
+import dynamic from 'next/dynamic';
+
+const TextRevealFAQs = dynamic(() => import('../components/ui/text-reveal-faqs'));
+const TrustedByShowcase = dynamic(() => import('../components/ui/trusted-by-showcase').then((m) => m.TrustedByShowcase));
+const Features = dynamic(() => import('../components/ui/features-11').then((m) => m.Features));
+const Testimonial = dynamic(() => import('../components/ui/testimonial'));
+const Changelog1 = dynamic(() => import('../components/ui/changelog-1').then((m) => m.Changelog1));
 
 import { cn } from '../lib/utils';
 import { WalletDropdown } from '../components/ui/wallet-dropdown';
-import Testimonial from '../components/ui/testimonial';
 import SEO from '../components/SEO';
 import CreditIndicator from '../components/CreditIndicator';
 import AdBanner from '../components/AdBanner';
-import { Changelog1 } from '../components/ui/changelog-1';
 import { ParticleText } from '../components/ui/particle-text';
 import { useAuth } from '../context/AuthContext';
 import { UnifiedProfileControl } from '../components/ui/unified-profile-control';
@@ -30,47 +32,47 @@ export default function Landing({
   viewType?: string;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   // Dynamic SEO copy adjustments based on pSEO routing variants
-  let pageTitle = "Bloomport AI — Free AI Website Builder & Generator";
-  let pageDesc = "Generate responsive websites and landing pages in 30 seconds with Bloomport AI. Export clean Tailwind CSS and HTML code. Free, no credit card required.";
+  let pageTitle = "Bloomport AI | Free AI Chatbot & Intelligent Assistant";
+  let pageDesc = "Chat instantly with Bloomport AI, your free intelligent conversational assistant. No login required, start chatting and exploring now.";
   let pagePath = "/";
   
-  let heroSpan1 = "Instant AI Website Builder —";
-  let heroSpan2 = "Zero Code. SEO-Ready.";
-  let heroDesc = "Bloomport AI is your free no-code website generator. Create full, responsive websites and landing pages in seconds, edit visually, and export clean Tailwind CSS.";
-  let heroCTA1 = "Generate Website Free";
-  let heroCTA2 = "Explore Templates";
+  let heroSpan1 = "Instant Free AI Chatbot";
+  let heroSpan2 = "Smart. Fast. Unlimited.";
+  let heroDesc = "Bloomport AI is your free personal chatbot and virtual assistant. Get instant answers, generate text, and solve problems with our advanced conversational AI.";
+  let heroCTA1 = "Start Chatting Free";
+  let heroCTA2 = "Explore Features";
 
   if (viewType === 'pseo-landing-page-gen') {
-    pageTitle = "Free AI Landing Page Generator — Create in 30 Seconds";
-    pageDesc = "Build high-converting startup landing pages instantly with the Bloomport AI landing page generator. Free code download & Tailwind styles.";
+    pageTitle = "Free AI Assistant | High Converting Ideas in Seconds";
+    pageDesc = "Generate fully customized marketing copy and ideas for your SaaS or product launch in under 30 seconds with Bloomport AI.";
     pagePath = "/free-ai-landing-page-generator";
-    heroSpan1 = "AI Landing Page Generator —";
+    heroSpan1 = "AI Marketing Chatbot";
     heroSpan2 = "High Converting. Instant.";
-    heroDesc = "Generate fully customized landing pages for your SaaS, product launch, or newsletter in under 30 seconds. Download clean responsive HTML & Tailwind code.";
-    heroCTA1 = "Generate Landing Page Free";
+    heroDesc = "Generate fully customized marketing copy and landing page ideas for your SaaS, product launch, or newsletter in under 30 seconds.";
+    heroCTA1 = "Start Brainstorming Free";
     heroCTA2 = "View Examples";
   } else if (viewType === 'pseo-startup-web') {
-    pageTitle = "Free AI Website Builder for Startups — Prompt to Web";
-    pageDesc = "Generate beautiful startup and SaaS landing pages in seconds. Responsive Tailwind code, SEO-ready structure, and zero monthly paywalls.";
+    pageTitle = "Free AI Chatbot for Startups | Brainstorm to Launch";
+    pageDesc = "Generate beautiful startup ideas, business plans, and SaaS strategies in seconds. Zero monthly paywalls.";
     pagePath = "/ai-website-builder-for-startups";
-    heroSpan1 = "AI Website Builder for Startups —";
-    heroSpan2 = "Prompt to Live Web.";
-    heroDesc = "Launch your startup fast. Prompt our design AI to generate modern Tailwind landing pages, email sign-ups, and developer showcases instantly.";
-    heroCTA1 = "Generate Startup Site Free";
-    heroCTA2 = "Startup Templates";
+    heroSpan1 = "AI Chatbot for Startups";
+    heroSpan2 = "Idea to Execution.";
+    heroDesc = "Launch your startup fast. Prompt our AI to generate modern business strategies, email sign-ups copy, and developer logic instantly.";
+    heroCTA1 = "Chat with AI Free";
+    heroCTA2 = "Startup Prompts";
   } else if (viewType === 'pseo-best-builder') {
-    pageTitle = "Best AI Website Builder in 2026 — Wix & Framer Competitor";
-    pageDesc = "Discover why Bloomport AI is rated the best free AI website generator. Export clean compiled HTML/CSS with zero monthly subscriptions or paywalls.";
+    pageTitle = "Best AI Chatbot in 2026 | ChatGPT Alternative";
+    pageDesc = "Discover why Bloomport AI is rated the best free AI conversational assistant. Zero monthly subscriptions or paywalls.";
     pagePath = "/best-ai-website-builder";
-    heroSpan1 = "Best AI Website Builder —";
-    heroSpan2 = "Clean Tailwind Code.";
-    heroDesc = "Create modern, responsive web layouts using the best free conversational design assistant. Zero lock-in, zero hosting paywalls.";
-    heroCTA1 = "Build Your Website Free";
+    heroSpan1 = "Best AI Chatbot";
+    heroSpan2 = "Unlimited Conversations.";
+    heroDesc = "Solve problems, write code, and brainstorm using the best free conversational AI assistant. Zero lock-in, zero paywalls.";
+    heroCTA1 = "Start Chatting Free";
     heroCTA2 = "Compare Competitors";
   }
 
@@ -86,6 +88,7 @@ export default function Landing({
           <div className="absolute inset-0 w-full h-full overflow-hidden z-0 select-none pointer-events-none">
             <video
               src="/landingAnimated.mp4"
+              poster="/_next/image?url=%2FlandingAnimated-poster.jpg&w=1920&q=75"
               autoPlay
               loop
               muted
@@ -118,7 +121,9 @@ export default function Landing({
             </nav>
 
             <div className="flex items-center gap-4">
-              {user ? (
+              {isLoading ? (
+                <div className="w-24 h-8 animate-pulse bg-white/10 rounded-full" />
+              ) : user ? (
                 <UnifiedProfileControl />
               ) : (
                 <>
@@ -209,7 +214,13 @@ export default function Landing({
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <button 
-                  onClick={onNavigate} 
+                  onClick={() => {
+                    if (!user) {
+                      window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'signin' }));
+                    } else {
+                      onNavigate();
+                    }
+                  }} 
                   className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-white text-black font-semibold hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group shadow-[0_8px_30px_rgb(255,255,255,0.15)]"
                 >
                   <span>{heroCTA1}</span>

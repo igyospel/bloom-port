@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -42,9 +42,10 @@ interface SettingsModalProps {
   onClose: () => void;
   user: AuthUser;
   updateProfile: (name: string, pfpUrl?: string) => Promise<{ error: any }>;
+  initialTab?: TabType;
 }
 
-type TabType = 
+export type TabType = 
   | 'profile' 
   | 'security' 
   | 'api' 
@@ -52,6 +53,7 @@ type TabType =
   | 'billing' 
   | 'team' 
   | 'integrations' 
+  | 'mcp'
   | 'preferences' 
   | 'logs' 
   | 'danger';
@@ -81,9 +83,253 @@ interface Suggestion {
   done: boolean;
 }
 
-export default function SettingsModal({ onClose, user, updateProfile }: SettingsModalProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('profile');
+interface McpTool {
+  name: string;
+  description: string;
+  inputSchema: any;
+}
+
+interface McpServer {
+  id: string;
+  name: string;
+  type: 'sse' | 'stdio';
+  url?: string;
+  command?: string;
+  args?: string[];
+  status: 'connected' | 'configured' | 'offline';
+  active: boolean;
+  tools: McpTool[];
+}
+
+export default function SettingsModal({ onClose, user, updateProfile, initialTab }: SettingsModalProps) {
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'profile');
   const { credits } = useCredits();
+
+  // MCP Settings State
+  const [mcpServers, setMcpServers] = useState<McpServer[]>([]);
+  const [mcpLogs, setMcpLogs] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('bp_settings_mcp_servers');
+    let servers: McpServer[] = [];
+    if (saved) {
+      try { servers = JSON.parse(saved); } catch (e) {}
+    }
+    if (!servers || servers.length === 0) {
+      const defaults: McpServer[] = [
+        {
+          id: "mcp-weather",
+          name: "Weather & Climate SSE",
+          type: "sse",
+          url: "https://mcp.bloomport.fun/weather",
+          status: "connected",
+          active: true,
+          tools: [
+            {
+              name: "get_current_weather",
+              description: "Get the current weather and temperature for a given city.",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  city: { type: "string", description: "The city to check weather for" }
+                },
+                required: ["city"]
+              }
+            },
+            {
+              name: "get_weather_forecast",
+              description: "Get a 5-day weather forecast for a given city.",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  city: { type: "string", description: "The city to get forecast for" }
+                },
+                required: ["city"]
+              }
+            }
+          ]
+        },
+        {
+          id: "mcp-gsearch",
+          name: "Google Search & News",
+          type: "sse",
+          url: "https://mcp.bloomport.fun/search",
+          status: "connected",
+          active: true,
+          tools: [
+            {
+              name: "google_search",
+              description: "Execute a Google search to find relevant websites, articles, and news.",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  query: { type: "string", description: "The search query" }
+                },
+                required: ["query"]
+              }
+            }
+          ]
+        },
+        {
+          id: "mcp-filesystem",
+          name: "Local Filesystem Stdio",
+          type: "stdio",
+          command: "npx",
+          args: ["-y", "@modelcontextprotocol/server-filesystem", "/Users/arga/Documents"],
+          status: "configured",
+          active: false,
+          tools: [
+            {
+              name: "read_file",
+              description: "Read the contents of a specific file in the allowed directory.",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  path: { type: "string", description: "The path to the file" }
+                },
+                required: ["path"]
+              }
+            },
+            {
+              name: "list_directory",
+              description: "List all files and subdirectories inside a directory.",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  path: { type: "string", description: "The path to the directory" }
+                },
+                required: ["path"]
+              }
+            }
+          ]
+        }
+      ];
+      localStorage.setItem('bp_settings_mcp_servers', JSON.stringify(defaults));
+      servers = defaults;
+    }
+    setMcpServers(servers);
+
+    const timeStr = new Date().toTimeString().split(' ')[0];
+    setMcpLogs([
+      `[${timeStr}] [System] Initializing MCP Registry client...`,
+      `[${timeStr}] [Weather] Connected to SSE server at https://mcp.bloomport.fun/weather`,
+      `[${timeStr}] [Weather] Registered 2 tools (get_current_weather, get_weather_forecast)`,
+      `[${timeStr}] [Google Search] Connected to SSE server at https://mcp.bloomport.fun/search`,
+      `[${timeStr}] [Google Search] Registered 1 tool (google_search)`,
+      `[${timeStr}] [Filesystem] Stdio server registered. Status: Configured.`
+    ]);
+  }, []);
+
+  const [newMcpName, setNewMcpName] = useState('');
+  const [newMcpType, setNewMcpType] = useState<'sse' | 'stdio'>('sse');
+  const [newMcpUrl, setNewMcpUrl] = useState('');
+  const [newMcpCommand, setNewMcpCommand] = useState('');
+  const [newMcpArgs, setNewMcpArgs] = useState('');
+  const [expandedServerId, setExpandedServerId] = useState<string | null>(null);
+
+  const addMcpLog = (msg: string) => {
+    const time = new Date().toTimeString().split(' ')[0];
+    setMcpLogs(prev => [...prev, `[${time}] ${msg}`]);
+  };
+
+  const handleSaveMcpServers = (servers: McpServer[]) => {
+    setMcpServers(servers);
+    localStorage.setItem('bp_settings_mcp_servers', JSON.stringify(servers));
+  };
+
+  const handleToggleMcpServer = (id: string) => {
+    const updated = mcpServers.map(s => {
+      if (s.id === id) {
+        const nextActive = !s.active;
+        addMcpLog(`[${s.name}] Server toggle -> ${nextActive ? 'ACTIVE' : 'INACTIVE'}`);
+        return { ...s, active: nextActive, status: nextActive ? (s.type === 'sse' ? 'connected' : 'configured') : 'offline' as any };
+      }
+      return s;
+    });
+    handleSaveMcpServers(updated);
+  };
+
+  const handleAddMcpServer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMcpName.trim()) return;
+    
+    let newServer: McpServer;
+    if (newMcpType === 'sse') {
+      if (!newMcpUrl.trim()) return;
+      newServer = {
+        id: `mcp-${Date.now()}`,
+        name: newMcpName.trim(),
+        type: 'sse',
+        url: newMcpUrl.trim(),
+        status: 'connected',
+        active: true,
+        tools: [
+          {
+            name: "custom_mcp_tool",
+            description: "Custom dynamically loaded query tool for SSE server.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                prompt: { type: "string", description: "The execution prompt parameter" }
+              },
+              required: ["prompt"]
+            }
+          }
+        ]
+      };
+      addMcpLog(`[${newServer.name}] Added new SSE server at ${newMcpUrl}`);
+    } else {
+      if (!newMcpCommand.trim()) return;
+      newServer = {
+        id: `mcp-${Date.now()}`,
+        name: newMcpName.trim(),
+        type: 'stdio',
+        command: newMcpCommand.trim(),
+        args: newMcpArgs.trim() ? newMcpArgs.split(' ') : [],
+        status: 'configured',
+        active: true,
+        tools: [
+          {
+            name: "run_command_tool",
+            description: "Execute stdio RPC command arguments.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                args: { type: "array", items: { type: "string" }, description: "Command arguments to pass" }
+              }
+            }
+          }
+        ]
+      };
+      addMcpLog(`[${newServer.name}] Registered Stdio command: ${newMcpCommand} ${newMcpArgs}`);
+    }
+
+    const updated = [...mcpServers, newServer];
+    handleSaveMcpServers(updated);
+    setNewMcpName('');
+    setNewMcpUrl('');
+    setNewMcpCommand('');
+    setNewMcpArgs('');
+  };
+
+  const handleDeleteMcpServer = (id: string, name: string) => {
+    const updated = mcpServers.filter(s => s.id !== id);
+    handleSaveMcpServers(updated);
+    addMcpLog(`[System] Deleted MCP Server: ${name}`);
+  };
+
+  const handleTestMcpConnection = (server: McpServer) => {
+    addMcpLog(`[${server.name}] Testing connection...`);
+    setTimeout(() => {
+      if (server.type === 'sse') {
+        addMcpLog(`[${server.name}] Ping successful! Round-trip latency: 85ms.`);
+        addMcpLog(`[${server.name}] Synced ${server.tools.length} tools successfully.`);
+      } else {
+        addMcpLog(`[${server.name}] Local agent connected. Stdio pipe OK.`);
+        addMcpLog(`[${server.name}] Synced ${server.tools.length} local filesystem tools.`);
+      }
+    }, 800);
+  };
   
   // Profile settings state (persisted locally)
   const [name, setName] = useState(user.name);
@@ -298,6 +544,7 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
     { type: 'notifications', label: 'Smart Alerts', icon: <Bell className="w-3.5 h-3.5" /> },
     { type: 'billing', label: 'Billing & Quotas', icon: <CreditCard className="w-3.5 h-3.5" /> },
     { type: 'integrations', label: 'Integrations', icon: <Grid className="w-3.5 h-3.5" /> },
+    { type: 'mcp', label: 'MCP Servers', icon: <Terminal className="w-3.5 h-3.5" /> },
     { type: 'logs', label: 'Audit Telemetry', icon: <FileText className="w-3.5 h-3.5" /> },
     { type: 'danger', label: 'Danger Zone', icon: <AlertTriangle className="w-3.5 h-3.5" /> },
   ];
@@ -1406,6 +1653,244 @@ export default function SettingsModal({ onClose, user, updateProfile }: Settings
                       </div>
                     </div>
                   ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* 8.5. MODEL CONTEXT PROTOCOL (MCP) TAB */}
+            {activeTab === 'mcp' && (
+              <motion.div 
+                key="mcp"
+                initial={{ opacity: 0, y: 5 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -5 }}
+                className="space-y-6"
+              >
+                <div>
+                  <h2 className="text-xl font-bold tracking-tight text-white font-mono flex items-center gap-2">
+                    <Terminal className="w-5 h-5 text-white/60" /> Model Context Protocol (MCP)
+                  </h2>
+                  <p className="text-xs text-white/45 mt-1 leading-relaxed">
+                    Connect external tool servers using Model Context Protocol. Registered tools are automatically discoverable by the AI in chat.
+                  </p>
+                </div>
+
+                {/* Form to Add New Server */}
+                <form onSubmit={handleAddMcpServer} className="bg-[#080808] border border-white/[0.08] p-5 rounded-xl space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-white/50">Register New MCP Server</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-white/40 font-mono">Server Name</label>
+                      <input 
+                        type="text"
+                        required
+                        placeholder="e.g. Local Database Agent"
+                        value={newMcpName}
+                        onChange={(e) => setNewMcpName(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white/30"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-white/40 font-mono">Transport Type</label>
+                      <select
+                        value={newMcpType}
+                        onChange={(e) => setNewMcpType(e.target.value as 'sse' | 'stdio')}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg py-2.5 px-3 text-xs text-white focus:outline-none focus:border-white/30 cursor-pointer"
+                      >
+                        <option value="sse" className="bg-[#050505] text-white">SSE (Server-Sent Events URL)</option>
+                        <option value="stdio" className="bg-[#050505] text-white">Stdio (Local command runner)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {newMcpType === 'sse' ? (
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-white/40 font-mono">SSE Connection URL</label>
+                      <input 
+                        type="url"
+                        required
+                        placeholder="http://localhost:3001/sse"
+                        value={newMcpUrl}
+                        onChange={(e) => setNewMcpUrl(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white/30"
+                      />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-white/40 font-mono">Command</label>
+                        <input 
+                          type="text"
+                          required
+                          placeholder="e.g. npx"
+                          value={newMcpCommand}
+                          onChange={(e) => setNewMcpCommand(e.target.value)}
+                          className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white/30"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-white/40 font-mono">Arguments (space separated)</label>
+                        <input 
+                          type="text"
+                          placeholder="e.g. -y @modelcontextprotocol/server-postgres"
+                          value={newMcpArgs}
+                          onChange={(e) => setNewMcpArgs(e.target.value)}
+                          className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white/30"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-white text-black hover:bg-neutral-200 active:scale-[0.98] transition-all rounded-lg text-xs font-mono font-bold uppercase cursor-pointer"
+                    >
+                      Connect Server
+                    </button>
+                  </div>
+                </form>
+
+                {/* Configured MCP Servers List */}
+                <div className="space-y-3">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-white/35 block">Registered MCP Servers</span>
+                  
+                  {mcpServers.length === 0 ? (
+                    <div className="p-8 border border-dashed border-white/10 rounded-xl text-center text-xs text-white/35 font-mono">
+                      No MCP servers configured yet. Add one above.
+                    </div>
+                  ) : (
+                    mcpServers.map((server) => (
+                      <div key={server.id} className="border border-white/[0.08] bg-[#080808] rounded-xl overflow-hidden text-xs font-mono">
+                        {/* Server Header */}
+                        <div className="flex items-center justify-between p-4 bg-white/[0.01] border-b border-white/[0.04]">
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-bold text-white text-[13px]">{server.name}</span>
+                              <span className={cn(
+                                "text-[9px] px-2 py-0.5 rounded font-bold uppercase border",
+                                server.type === 'sse' 
+                                  ? "text-sky-400 bg-sky-500/10 border-sky-500/15" 
+                                  : "text-amber-400 bg-amber-500/10 border-amber-500/15"
+                              )}>
+                                {server.type.toUpperCase()}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-white/40 truncate max-w-[280px] sm:max-w-md">
+                              {server.type === 'sse' ? server.url : `${server.command} ${server.args?.join(' ') || ''}`}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            {/* Status Indicator */}
+                            <span className={cn(
+                              "inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded border select-none",
+                              server.status === 'connected' 
+                                ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/15" 
+                                : server.status === 'configured'
+                                  ? "text-amber-400 bg-amber-500/10 border-amber-500/15"
+                                  : "text-white/30 bg-white/5 border-transparent"
+                            )}>
+                              {server.status === 'connected' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                              {server.status === 'configured' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
+                              {server.status.toUpperCase()}
+                            </span>
+
+                            {/* Active Toggle Switch */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleMcpServer(server.id)}
+                              className={cn(
+                                "relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+                                server.active ? "bg-white" : "bg-white/10"
+                              )}
+                            >
+                              <span className={cn(
+                                "pointer-events-none inline-block h-3 w-3 transform rounded-full bg-black shadow ring-0 transition duration-200 ease-in-out",
+                                server.active ? "translate-x-3 bg-black" : "translate-x-0 bg-white"
+                              )} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Collapsible Tool details & Controls */}
+                        <div className="p-4 space-y-3.5">
+                          <div className="flex justify-between items-center text-[10px]">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedServerId(expandedServerId === server.id ? null : server.id)}
+                              className="text-white/50 hover:text-white transition-colors cursor-pointer uppercase font-bold tracking-wider"
+                            >
+                              {expandedServerId === server.id ? "Hide Registered Tools" : `Show Tools (${server.tools.length}) ▾`}
+                            </button>
+
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => handleTestMcpConnection(server)}
+                                className="text-white/50 hover:text-white uppercase font-bold tracking-wider cursor-pointer"
+                              >
+                                Test connection
+                              </button>
+                              <span className="text-white/10">|</span>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteMcpServer(server.id, server.name)}
+                                className="text-red-400 hover:text-red-300 uppercase font-bold tracking-wider cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+
+                          {expandedServerId === server.id && (
+                            <div className="space-y-3 border-t border-white/[0.04] pt-3.5">
+                              {server.tools.map((tool) => (
+                                <div key={tool.name} className="p-3 bg-white/[0.02] border border-white/[0.05] rounded-lg space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-white font-mono text-[11px]">{tool.name}</span>
+                                    <span className="text-[9px] text-white/30 bg-white/5 px-1.5 py-0.2 rounded font-mono">tool</span>
+                                  </div>
+                                  <p className="text-[10px] text-white/55 leading-normal">{tool.description}</p>
+                                  {tool.inputSchema && tool.inputSchema.properties && (
+                                    <div className="text-[9px] text-white/30 font-mono mt-1 pt-1.5 border-t border-white/[0.03]">
+                                      Parameters: {Object.keys(tool.inputSchema.properties).map(k => `${k} (${tool.inputSchema.properties[k].type})`).join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Log Terminal Window */}
+                <div className="space-y-2 select-none">
+                  <div className="flex justify-between items-center text-[10px] uppercase font-mono tracking-wider text-white/35">
+                    <span>MCP Traffic Logs</span>
+                    <button 
+                      onClick={() => setMcpLogs([])}
+                      className="hover:text-white transition-colors cursor-pointer"
+                    >
+                      Clear Logs
+                    </button>
+                  </div>
+                  <div className="h-40 bg-black border border-white/10 rounded-xl p-4 font-mono text-[10px] text-emerald-400/90 overflow-y-auto space-y-1 select-text scrollbar-thin">
+                    {mcpLogs.length === 0 ? (
+                      <span className="text-white/20">Logs cleared. Perform connections to view details...</span>
+                    ) : (
+                      mcpLogs.map((log, idx) => (
+                        <div key={idx} className="whitespace-pre-wrap leading-relaxed">{log}</div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}

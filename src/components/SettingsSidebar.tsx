@@ -1,4 +1,4 @@
-import { ChevronRight, Settings } from 'lucide-react';
+import { ChevronRight, Settings, Terminal } from 'lucide-react';
 
 export interface ModelOption {
   id: string;
@@ -7,7 +7,7 @@ export interface ModelOption {
 }
 
 export const MODELS: ModelOption[] = [
-  { id: 'mistralai/mistral-small-2603', name: 'BP011 - 3.0', desc: 'latestmodel by bloomport ai' }
+  { id: 'mistralai/mistral-small-2603:online', name: 'BP011 - 3.0', desc: 'latestmodel by bloomport ai' }
 ];
 
 interface SettingsSidebarProps {
@@ -127,10 +127,25 @@ export default function SettingsSidebar({
           </div>
 
           {/* Advanced Settings Row */}
-          <button className="w-full flex items-center justify-between py-3 border-t border-b border-white/[0.06] hover:bg-white/[0.02] text-xs font-medium text-white/60 hover:text-white transition-colors cursor-pointer group px-1">
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('bloomport-open-settings'))}
+            className="w-full flex items-center justify-between py-3 border-t border-b border-white/[0.06] hover:bg-white/[0.02] text-xs font-medium text-white/60 hover:text-white transition-colors cursor-pointer group px-1"
+          >
             <span className="flex items-center gap-2">
               <Settings className="w-3.5 h-3.5 text-white/40 group-hover:text-white transition-colors" />
               Advanced Settings
+            </span>
+            <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-white transition-colors" />
+          </button>
+
+          {/* MCP Tools Configuration Row */}
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('bloomport-open-settings', { detail: { tab: 'mcp' } }))}
+            className="w-full flex items-center justify-between py-3 border-b border-white/[0.06] hover:bg-white/[0.02] text-xs font-medium text-white/60 hover:text-white transition-colors cursor-pointer group px-1"
+          >
+            <span className="flex items-center gap-2 text-sky-400 group-hover:text-sky-300">
+              <Terminal className="w-3.5 h-3.5" />
+              MCP Tools Configuration
             </span>
             <ChevronRight className="w-4 h-4 text-white/30 group-hover:text-white transition-colors" />
           </button>

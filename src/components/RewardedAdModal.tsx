@@ -22,10 +22,12 @@ export default function RewardedAdModal({ isOpen, onClose }: RewardedAdModalProp
   const handleWatchAd = useCallback(async () => {
     setAdState('loading');
 
+    const globalWindow = window as any;
+
     // ── PRIMARY: Monetag Rewarded Interstitial (forced 30s) ────────────────
     try {
       setAdState('showing');
-      const result = await window.monetagShowAd();
+      const result = await globalWindow.monetagShowAd();
 
       if (result === 'reward' || result === 'close' || result === 'success') {
         // Monetag returns 'reward' when user completed the view
@@ -45,7 +47,7 @@ export default function RewardedAdModal({ isOpen, onClose }: RewardedAdModalProp
     }
 
     // ── FALLBACK: Google AdSense adBreak ───────────────────────────────────
-    window.adBreak({
+    globalWindow.adBreak({
       type: 'reward',
       name: 'bloomport_credit_reward',
       beforeAd: () => {

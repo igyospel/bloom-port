@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
 import { isConfigured, streamChatMessage } from "@/lib/openrouter"
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer"
+import { useCredits } from "../../context/CreditContext"
 
 // ── auto-resize hook ──────────────────────────────────────────────────────────
 function useAutoResizeTextarea({
@@ -55,6 +56,7 @@ function LiveChat() {
   const [configError, setConfigError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({ minHeight: 52, maxHeight: 160 })
+  const { credits, consumeCredits } = useCredits()
 
   const sendMessage = async (text: string) => {
     if (!text.trim()) return
@@ -63,6 +65,12 @@ function LiveChat() {
       setConfigError("OpenRouter API key not configured. Add VITE_OPENROUTER_API_KEY to your .env file.")
       return
     }
+
+    if (credits < 150) {
+      setConfigError(`Insufficient credits (${credits}/150). Please click your credit balance at the top right to watch a short ad and earn +1000 credits instantly!`)
+      return
+    }
+
     setConfigError(null)
 
     setIsGenerating(true)
@@ -77,6 +85,9 @@ function LiveChat() {
     setInputValue("")
     adjustHeight(true)
 
+    // Deduct credits immediately
+    await consumeCredits(150)
+
     const abortController = new AbortController()
     abortRef.current = abortController
 
@@ -85,10 +96,14 @@ function LiveChat() {
         role: m.from as 'user' | 'assistant',
         content: m.content,
       }))
+      
+      const systemPrompt = `You are Bloomport AI. Today's date is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. When asked about current events, people, or facts, use this date as the present. Tone should be casual Indonesian (gaul, santai, using slang/emoji).`;
+      
+      history.unshift({ role: 'system' as const, content: systemPrompt })
       history.push({ role: 'user' as const, content: text.trim() })
 
       let accumulated = ''
-      for await (const chunk of streamChatMessage(history, abortController.signal)) {
+      for await (const chunk of streamChatMessage(history, undefined, abortController.signal)) {
         accumulated += chunk
         setMessages((prev) =>
           prev.map((m) =>

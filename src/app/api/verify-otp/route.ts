@@ -80,7 +80,7 @@ export async function POST(req: Request): Promise<Response> {
       authUserId = existingUser.id;
       // Update name if provided on signup
       if (purpose === 'signup' && userName) {
-        await supabase.auth.admin.updateUserById(authUserId, {
+        await supabase.auth.admin.updateUserById(authUserId!, {
           user_metadata: { name: userName },
         });
         await supabase

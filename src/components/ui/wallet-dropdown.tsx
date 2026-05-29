@@ -422,8 +422,6 @@ function DropdownItem({
         "transition-all duration-200 cursor-pointer",
         isLanding
           ? danger
-          : "text-gray-700 hover:bg-gray-50"
-          ? danger
             ? "text-red-500 hover:bg-red-50"
             : "text-gray-700 hover:bg-gray-50"
           : danger
