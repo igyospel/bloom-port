@@ -118,6 +118,14 @@ export default function Landing({
               <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigate(); }}>Models</a>
               <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateApi(); }}>API</a>
               <a className="text-white/50 hover:text-white transition-colors" href="#" onClick={(e) => { e.preventDefault(); onNavigateDocs(); }}>Docs</a>
+              <div className="relative group">
+                <button className="text-white/50 hover:text-white transition-colors flex items-center gap-1 cursor-pointer">Tools</button>
+                <div className="absolute top-full right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col p-2 z-[100]">
+                  <a className="px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer flex items-center" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'imagetopdf' })); }}>Image to PDF</a>
+                  <a className="px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer flex items-center" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'focustimer' })); }}>Focus Timer</a>
+                  <a className="px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer flex items-center" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'journalprompts' })); }}>Journal Prompts</a>
+                </div>
+              </div>
             </nav>
 
             <div className="flex items-center gap-4">
@@ -190,6 +198,27 @@ export default function Landing({
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer text-left"
               >
                 Docs
+              </button>
+              <div className="pt-4 pb-2">
+                <span className="px-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Tools</span>
+              </div>
+              <button
+                onClick={() => { window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'imagetopdf' })); closeMobileMenu(); }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer text-left pl-6"
+              >
+                Image to PDF
+              </button>
+              <button
+                onClick={() => { window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'focustimer' })); closeMobileMenu(); }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer text-left pl-6"
+              >
+                Focus Timer
+              </button>
+              <button
+                onClick={() => { window.dispatchEvent(new CustomEvent('bloomport-navigate', { detail: 'journalprompts' })); closeMobileMenu(); }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer text-left pl-6"
+              >
+                Journal Prompts
               </button>
             </nav>
           </div>

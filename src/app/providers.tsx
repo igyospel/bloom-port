@@ -39,6 +39,8 @@ function NavigationListener() {
         router.push('/tools/stress-quiz');
       } else if (view === 'habittracker') {
         router.push('/tools/habit-tracker');
+      } else if (view === 'imagetopdf') {
+        router.push('/tools/image-to-pdf');
       } else if (view.startsWith('blog/')) {
         router.push('/' + view);
       } else {
