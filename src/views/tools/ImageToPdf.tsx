@@ -361,6 +361,7 @@ export default function ImageToPdf({ onNavigateHome, onNavigateApp }: ImageToPdf
               )}
             </button>
           </div>
+        </div>
         )}
 
         <p className="text-white/20 text-xs mt-16 text-center">© {new Date().getFullYear()} Bloomport · Client-side processing · No data collected</p>
