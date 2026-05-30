@@ -42,11 +42,52 @@ const breadcrumbSchema = {
   ]
 };
 
+type CompressionLevel = 'original' | 'medium' | 'high';
+
 export default function ImageToPdf({ onNavigateHome, onNavigateApp }: ImageToPdfProps) {
   const [images, setImages] = useState<ImageFile[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [compression, setCompression] = useState<CompressionLevel>('original');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const compressImage = (file: File, quality: number, maxWidth = 1920): Promise<ArrayBuffer> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(img.src);
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject('No canvas context');
+
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              blob.arrayBuffer().then(resolve).catch(reject);
+            } else {
+              reject('Canvas to Blob failed');
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = reject;
+    });
+  };
 
   const handleFilesSelected = useCallback((files: FileList | null) => {
     if (!files) return;
@@ -107,10 +148,21 @@ export default function ImageToPdf({ onNavigateHome, onNavigateApp }: ImageToPdf
       const pdfDoc = await PDFDocument.create();
       
       for (const img of images) {
-        const arrayBuffer = await img.file.arrayBuffer();
-        let pdfImage;
+        let arrayBuffer: ArrayBuffer;
+        let isJpeg = img.file.type === 'image/jpeg';
         
-        if (img.file.type === 'image/jpeg') {
+        if (compression === 'original') {
+          arrayBuffer = await img.file.arrayBuffer();
+        } else {
+          // Always convert to JPEG for compression
+          const quality = compression === 'high' ? 0.4 : 0.7;
+          const maxWidth = compression === 'high' ? 1200 : 1920;
+          arrayBuffer = await compressImage(img.file, quality, maxWidth);
+          isJpeg = true;
+        }
+        
+        let pdfImage;
+        if (isJpeg) {
           pdfImage = await pdfDoc.embedJpg(arrayBuffer);
         } else if (img.file.type === 'image/png') {
           pdfImage = await pdfDoc.embedPng(arrayBuffer);
@@ -270,7 +322,27 @@ export default function ImageToPdf({ onNavigateHome, onNavigateApp }: ImageToPdf
 
         {/* Generate Button */}
         {images.length > 0 && (
-          <div className="w-full flex justify-center mt-4">
+          <div className="w-full flex flex-col items-center mt-4">
+            <div className="flex flex-col items-center mb-8">
+              <label className="text-sm text-white/70 mb-3 font-medium">PDF Quality (Compression)</label>
+              <div className="flex bg-white/10 p-1.5 rounded-2xl">
+                {(['original', 'medium', 'high'] as CompressionLevel[]).map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCompression(level)}
+                    className={`px-5 py-2.5 text-sm rounded-xl capitalize transition-all cursor-pointer ${
+                      compression === level
+                        ? 'bg-white text-black font-bold shadow-md'
+                        : 'text-white/60 hover:text-white hover:bg-white/10 font-medium'
+                    }`}
+                  >
+                    {level === 'original' ? 'Original (Best)' : level === 'medium' ? 'Medium (< 5MB)' : 'High (< 2MB)'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="w-full flex justify-center">
             <button
               onClick={generatePDF}
               disabled={isGenerating}
